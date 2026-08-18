@@ -35,6 +35,25 @@ function sanitizeName(name) {
 }
 
 /**
+ * Sanitizes a SKU for use in a URL while PRESERVING its original casing.
+ *
+ * Catalog Service `products(skus: [...])` lookups are case-sensitive. When a PDP
+ * is not prerendered there is no `<meta name="sku">`, so `getProductSku()` falls
+ * back to the SKU segment of the URL — lower-casing it there makes the lookup
+ * return an empty result and the PDP renders without product data.
+ *
+ * @param {string} sku
+ * @returns {string} URL-safe SKU with original casing
+ */
+function sanitizeSku(sku) {
+  return sku
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-zA-Z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
+/**
  * Fetch GraphQL Instances
  */
 
@@ -673,7 +692,7 @@ export function getProductLink(urlKey, sku) {
     console.warn('getProductLink: sku is missing or empty', { urlKey, sku });
   }
   const sanitizedUrlKey = urlKey ? sanitizeName(urlKey) : '';
-  const sanitizedSku = sku ? sanitizeName(sku) : '';
+  const sanitizedSku = sku ? sanitizeSku(sku) : '';
   return rootLink(`/products/${sanitizedUrlKey}/${sanitizedSku}`);
 }
 
