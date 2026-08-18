@@ -1,0 +1,153 @@
+/* ==========================================================================
+   weekend.lv theme
+   Tokens sampled from https://www.weekend.lv/ : brand orange #ff6200,
+   ink #262626, muted #999, surface #f2f2f2, promo green #9fe579,
+   gold #c6a85a, Inter, 72px header, square corners.
+   Loaded from head.html after styles.css. Delete the file and its <link>
+   to revert to the stock boilerplate look.
+   ========================================================================== */
+
+:root,
+.dropin-design {
+  /* typography */
+  --type-base-font-family: inter, system-ui, -apple-system, helvetica, sans-serif;
+
+  /* brand: primary actions in weekend orange */
+  --color-brand-300: #999;
+  --color-brand-500: #ff6200;
+  --color-brand-600: #e05600;
+  --color-brand-700: #c44b00;
+
+  /* neutrals retuned to the weekend greyscale, light-to-dark order preserved */
+  --color-neutral-50: #fff;
+  --color-neutral-100: #fafafa;
+  --color-neutral-200: #f8f8f8;
+  --color-neutral-300: #f2f2f2;
+  --color-neutral-400: #e6e6e6;
+  --color-neutral-500: #d5d5d5;
+  --color-neutral-600: #999;
+  --color-neutral-700: #4d4d4d;
+  --color-neutral-800: #333;
+  --color-neutral-900: #262626;
+
+  /* promo green, used for badges */
+  --color-positive-200: #eefae7;
+  --color-positive-500: #9fe579;
+  --color-positive-800: #4e8f2f;
+
+  /* squarer corners than the stock pill shapes */
+  --shape-border-radius-1: 2px;
+  --shape-border-radius-2: 4px;
+  --shape-border-radius-3: 4px;
+
+  /* header height matches weekend.lv (--header-height: 72px) */
+  --nav-height: 7.2rem;
+
+  /* extra brand tokens for blocks */
+  --color-weekend-orange: #ff6200;
+  --color-weekend-ink: #262626;
+  --color-weekend-gold: #c6a85a;
+}
+
+body.appear {
+  color: var(--color-weekend-ink);
+}
+
+/* headings heavier and tighter, as on weekend.lv */
+main h1,
+main h2,
+main h3 {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* links in brand orange */
+main a:any-link {
+  color: var(--color-weekend-orange);
+}
+
+main a:hover {
+  color: var(--color-brand-600);
+}
+
+/* uppercase, tightly tracked main navigation */
+header .nav-sections .default-content-wrapper > ul > li {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+header .nav-sections .default-content-wrapper > ul > li:hover {
+  color: var(--color-weekend-orange);
+}
+
+/* brand wordmark with the orange underline treatment */
+header .nav-brand a {
+  border-bottom: 3px solid var(--color-weekend-orange);
+  color: var(--color-weekend-ink);
+  font-weight: 700;
+  padding-bottom: 2px;
+  text-decoration: none;
+}
+
+/* --------------------------------------------------------------------------
+   Product cards (real drop-in classes: dropin-product-item-card, dropin-price)
+   -------------------------------------------------------------------------- */
+.dropin-product-item-card {
+  border: 1px solid var(--color-neutral-400);
+  border-radius: var(--shape-border-radius-1);
+  transition: box-shadow 0.15s ease-in-out;
+}
+
+.dropin-product-item-card:hover {
+  box-shadow: 0 2px 12px rgb(38 38 38 / 12%);
+}
+
+.dropin-product-item-card__image-container {
+  background-color: var(--color-neutral-300);
+}
+
+.dropin-product-item-card__title {
+  color: var(--color-weekend-ink);
+  font-weight: 500;
+}
+
+.dropin-product-item-card__sku {
+  color: var(--color-neutral-600);
+}
+
+/* prices: regular in ink, discounted in orange, old price muted */
+.dropin-price,
+.dropin-price-range,
+.dropin-product-item-card__price {
+  color: var(--color-weekend-ink);
+}
+
+.regular-price-normal {
+  color: var(--color-weekend-orange);
+  font-weight: 700;
+}
+
+.special-price-crossed {
+  color: var(--color-neutral-600);
+  text-decoration: line-through;
+}
+
+/* NOTE: weekend.lv shows a green "JAUNS" badge on product tiles. The
+   product-item-card drop-in ships no badge element, so that is a custom
+   build (worth carrying as its own estimate line), not a styling change.
+   The promo green is available as --color-positive-500 when it is built. */
+
+/* footer on the dark ink surface */
+footer {
+  background-color: var(--color-weekend-ink);
+  color: var(--color-neutral-50);
+}
+
+footer a:any-link {
+  color: var(--color-neutral-50);
+}
+
+footer a:hover {
+  color: var(--color-weekend-orange);
+}
