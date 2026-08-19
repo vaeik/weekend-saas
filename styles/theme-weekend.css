@@ -7,6 +7,10 @@
    to revert to the stock boilerplate look.
    ========================================================================== */
 
+/* Grouped by component (nav, cards, footer) rather than ordered by selector
+   specificity, so the source-order specificity rule does not apply here. */
+/* stylelint-disable no-descending-specificity */
+
 :root,
 .dropin-design {
   /* typography */
@@ -77,8 +81,81 @@ header .nav-sections .default-content-wrapper > ul > li {
   text-transform: uppercase;
 }
 
-header .nav-sections .default-content-wrapper > ul > li:hover {
+/* Root items: dark ink like weekend.lv, orange only as the accent on
+   hover/open — the stock boilerplate colours the whole nav brand-orange, which
+   flattens the hierarchy. */
+header .nav-sections .default-content-wrapper > ul > li > a {
+  color: var(--color-weekend-ink);
+  transition: color 0.12s ease;
+}
+
+header .nav-sections .default-content-wrapper > ul > li:hover > a,
+header .nav-sections .default-content-wrapper > ul > li[aria-expanded='true'] > a {
   color: var(--color-weekend-orange);
+}
+
+/* Desktop mega-menu → a compact dropdown card anchored under its item.
+   The stock panel is full-bleed white and looks empty with a handful of
+   items; !important is needed to beat header.css's own desktop rules, which
+   load after this file. */
+@media (min-width: 900px) {
+  header nav .nav-sections .default-content-wrapper > ul > li {
+    position: relative;
+  }
+
+  header nav .nav-sections .default-content-wrapper > ul > li:hover,
+  header nav .nav-sections .nav-drop[aria-expanded='true'] {
+    background-color: transparent !important;
+  }
+
+  header nav .nav-sections .default-content-wrapper > ul > li[aria-expanded='true'] .submenu-wrapper {
+    left: 0;
+    width: max-content !important;
+    min-width: 240px;
+    max-width: 340px;
+    min-height: 0 !important;
+    max-height: none !important;
+    top: calc(var(--nav-height) - 12px);
+    padding: 14px 8px !important;
+    border-top: 3px solid var(--color-weekend-orange);
+    border-radius: 0 0 6px 6px;
+    box-shadow: 0 16px 32px rgb(38 38 38 / 14%);
+  }
+
+  header nav .nav-sections .default-content-wrapper > ul > li[aria-expanded='true'] ul {
+    display: block !important;
+    width: auto !important;
+    margin: 0 !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  /* the stock upward caret was drawn for the full-bleed panel */
+  header nav .nav-sections .default-content-wrapper > ul > li ul::before {
+    display: none;
+  }
+
+  header nav .nav-sections .default-content-wrapper > ul > li ul > li {
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+
+  header nav .nav-sections .default-content-wrapper > ul > li ul > li a {
+    display: block;
+    padding: 8px 14px;
+    border-radius: 4px;
+    color: var(--color-weekend-ink) !important;
+    font-weight: 500 !important;
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+    transition: color 0.12s ease, background-color 0.12s ease;
+  }
+
+  header nav .nav-sections .default-content-wrapper > ul > li ul > li a:hover {
+    color: var(--color-weekend-orange) !important;
+    background-color: var(--color-neutral-300);
+  }
 }
 
 /* brand wordmark with the orange underline treatment */
