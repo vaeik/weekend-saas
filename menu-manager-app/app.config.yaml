@@ -1,0 +1,36 @@
+hooks:
+  post-app-deploy: node hooks/post-app-deploy.js
+
+# Adobe Commerce Admin UI SDK extension.
+#
+# NOTE (plan finding F2): ACCS is on the V1 contract `commerce/backend-ui/1`.
+# V2 (`commerce/backend-ui/2`) is PaaS-only as of Admin UI SDK 4.2.x. Migrate
+# this block when V2 reaches ACCS; the V1-specific surface is the registration
+# action and lib/auth.js sharedContext handling.
+extensions:
+  commerce/backend-ui/1:
+    $include: src/commerce-backend-ui-1/ext.config.yaml
+
+# Written by `aio app db provision --region emea`, PLUS a `packages: {}` that
+# the provision command does not add.
+#
+# This is an Adobe tooling bug for extension-only apps: `aio app db provision`
+# appends `application.runtimeManifest.database` on its own, but the config
+# schema (@adobe/aio-cli-lib-app-config 4.2.0) makes `packages` a REQUIRED
+# property of every runtimeManifest — so the very next `aio app deploy` fails
+# with "must have required property 'packages'". Verified by compiling the real
+# schema with ajv: adding an empty `packages` makes it valid, and an empty
+# object satisfies the definition (patternProperties, nothing required).
+#
+# Our actions all live under `extensions`, so this application block exists ONLY
+# to carry the database region, which aio-lib-db reads from here
+# (utils/manifestUtils.js -> getRegionFromAppConfig).
+#
+# If you re-run `aio app db provision`, it may strip `packages` again — put it
+# back rather than moving the database block.
+application:
+  runtimeManifest:
+    database:
+      auto-provision: false
+      region: emea
+    packages: {}

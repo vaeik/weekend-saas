@@ -5,6 +5,7 @@ import { tryRenderAemAssetsImage } from '@dropins/tools/lib/aem/assets.js';
 import { getMetadata } from '../../scripts/aem.js';
 import { loadFragment } from '../fragment/fragment.js';
 import { fetchPlaceholders, getProductLink, rootLink } from '../../scripts/commerce.js';
+import { applyMenuManagerNav } from './menu-source.js';
 
 import renderAuthCombine from './renderAuthCombine.js';
 import { renderAuthDropdown } from './renderAuthDropdown.js';
@@ -194,6 +195,12 @@ export default async function decorate(block) {
   }
 
   const navSections = nav.querySelector('.nav-sections');
+
+  // Menu Manager (App Builder) supplies the nav when configured. When it is not
+  // configured, unreachable, or returns nothing this is a no-op and the authored
+  // /nav fragment loaded above is used unchanged.
+  await applyMenuManagerNav(navSections);
+
   if (navSections) {
     navSections
       .querySelectorAll(':scope .default-content-wrapper > ul > li')

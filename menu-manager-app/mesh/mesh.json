@@ -1,0 +1,24 @@
+{
+  "meshConfig": {
+    "sources": [
+      {
+        "name": "Commerce",
+        "handler": {
+          "graphql": {
+            "endpoint": "https://www.aemshop.net/graphql"
+          }
+        }
+      }
+    ],
+
+    "additionalTypeDefs": "extend type Query {\n  scandiwebMenu(identifier: String!, maxLevel: Int, storeCode: String): ScandiwebMenu\n}\n\ntype ScandiwebMenu {\n  menu_id: ID\n  title: String\n  is_active: Boolean\n  css_class: String\n  items: [ScandiwebMenuItem]\n}\n\n# FLAT BY DESIGN. API Mesh caps queryConfig.maxDepth at 6 and a recursive\n# `children` field burns ~2 levels per menu tier, so a 3-level menu would sit at\n# the cap. The EDS header block rebuilds the tree from parent_id + level.\ntype ScandiwebMenuItem {\n  item_id: ID\n  parent_id: ID\n  level: Int\n  position: Int\n  title: String\n  item_class: String\n  icon: String\n  url: String\n  url_type: Int\n  is_active: Boolean\n  category_id: Int\n  category_url_key: String\n  cms_page_identifier: String\n  advertisement: String\n  advertisement_link: String\n  advertisement_second: String\n  advertisement_second_link: String\n  custom_redirect: String\n  is_promo: Int\n  promo_image: String\n  is_with_cms_block: Int\n}\n",
+
+    "additionalResolvers": ["./resolvers.js"],
+
+    "responseConfig": {
+      "headers": {
+        "Cache-Control": "public, max-age=600"
+      }
+    }
+  }
+}
