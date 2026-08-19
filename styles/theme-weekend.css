@@ -165,6 +165,7 @@ header .nav-brand a {
   font-weight: 700;
   padding-bottom: 2px;
   text-decoration: none;
+  white-space: nowrap; /* keep the wordmark on one line on narrow screens */
 }
 
 /* --------------------------------------------------------------------------
