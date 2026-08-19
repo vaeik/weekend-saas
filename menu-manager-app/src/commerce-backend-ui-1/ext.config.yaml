@@ -140,6 +140,29 @@ runtimeManifest:
           annotations:
             require-adobe-auth: true
             final: true
+        # Web-hosted admin UI (serves HTML + its JSON API from one endpoint).
+        # NOT require-adobe-auth so a browser can reach it; protected by a
+        # constant-time ADMIN_SECRET instead (demo-grade, not per-user IMS auth —
+        # the production admin is the Admin UI SDK SPA). COMMERCE_* are the public
+        # demo-catalog values (already in the repo's config.json) used only to
+        # populate the category picker.
+        admin:
+          function: actions/admin/index.js
+          web: 'yes'
+          runtime: nodejs:22
+          inputs:
+            LOG_LEVEL: debug
+            ADMIN_SECRET: $ADMIN_SECRET
+            COMMERCE_ENDPOINT: 'https://www.aemshop.net/cs-graphql'
+            COMMERCE_HEADERS: '{"Store":"default","Magento-Store-Code":"main_website_store","Magento-Store-View-Code":"default","Magento-Website-Code":"base","x-api-key":"4dfa19c9fe6f4cccade55cc5b3da94f7","Magento-Environment-Id":"f38a0de0-764b-41fa-bd2c-5bc2f3c7b39a"}'
+            IMS_OAUTH_S2S_CLIENT_ID: $IMS_OAUTH_S2S_CLIENT_ID
+            IMS_OAUTH_S2S_CLIENT_SECRET: $IMS_OAUTH_S2S_CLIENT_SECRET
+            IMS_OAUTH_S2S_ORG_ID: $IMS_OAUTH_S2S_ORG_ID
+            IMS_OAUTH_S2S_SCOPES: $IMS_OAUTH_S2S_SCOPES
+            AIO_DB_REGION: $AIO_DB_REGION
+          annotations:
+            final: true
+
         # Storefront read path, consumed by API Mesh — NOT by browsers directly.
         # Deliberately not require-adobe-auth: the storefront is anonymous.
         # Protected by a shared secret checked in constant time in lib/auth.js.
