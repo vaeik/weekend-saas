@@ -20,10 +20,19 @@ const TIMEOUT_MS = 2000;
  * Category items use the url key kept fresh by the category event handler, so
  * the storefront never calls Commerce to resolve a category id.
  */
-export function hrefFor(item) {
+export function hrefFor(item, opts = {}) {
   switch (item.url_type) {
-    case URL_TYPE.CATEGORY:
-      return item.category_url_key ? rootLink(`/${item.category_url_key}`) : null;
+    case URL_TYPE.CATEGORY: {
+      if (!item.category_url_key) return null;
+      // Some storefronts have no per-category page (e.g. a demo backend whose
+      // categories are only browsable through search). `categoryPathTemplate`
+      // (from the `menu-manager-category-path` config) lets the site route
+      // category items through a pattern such as
+      // `/search?filter=categoryPath:{path}`. Unset, links stay clean `/urlKey`.
+      return opts.categoryPathTemplate
+        ? rootLink(opts.categoryPathTemplate.replace('{path}', item.category_url_key))
+        : rootLink(`/${item.category_url_key}`);
+    }
     case URL_TYPE.CMS_PAGE:
       return item.cms_page_identifier ? rootLink(`/${item.cms_page_identifier}`) : null;
     case URL_TYPE.LINK:
@@ -44,7 +53,7 @@ export function hrefFor(item) {
  * setupSubmenu() reads childNodes[0].textContent for the submenu title, so the
  * anchor must be the first child.
  */
-export function buildNavList(items, doc = document) {
+export function buildNavList(items, doc = document, opts = {}) {
   const roots = [];
   const childrenOf = new Map();
 
@@ -65,7 +74,7 @@ export function buildNavList(items, doc = document) {
     [...nodes].sort(sortFn).forEach((item) => {
       const li = doc.createElement('li');
 
-      const href = hrefFor(item);
+      const href = hrefFor(item, opts);
       const label = href ? doc.createElement('a') : doc.createElement('span');
       if (href) label.href = href;
       label.textContent = item.title;
@@ -172,7 +181,9 @@ export async function applyMenuManagerNav(navSections, opts = {}) {
   });
   if (!menu) return false;
 
-  const ul = buildNavList(menu.items, opts.document ?? document);
+  const categoryPathTemplate = opts.categoryPathTemplate
+    ?? await getConfigValue('menu-manager-category-path');
+  const ul = buildNavList(menu.items, opts.document ?? document, { categoryPathTemplate });
   if (!ul || !ul.children.length) return false;
 
   const wrapper = navSections.querySelector('.default-content-wrapper')

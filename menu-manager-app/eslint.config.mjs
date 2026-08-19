@@ -14,7 +14,8 @@ export default [
       sourceType: 'commonjs',
       globals: {
         require: 'readonly', module: 'writable', process: 'readonly', Buffer: 'readonly',
-        console: 'readonly', exports: 'writable', __dirname: 'readonly', global: 'writable',
+        console: 'readonly', exports: 'writable', __dirname: 'readonly', __filename: 'readonly',
+        global: 'writable',
         // Node 18+ / I/O Runtime nodejs:22 globals used by the actions
         URLSearchParams: 'readonly', URL: 'readonly', fetch: 'readonly',
         globalThis: 'readonly', setTimeout: 'readonly', clearTimeout: 'readonly'

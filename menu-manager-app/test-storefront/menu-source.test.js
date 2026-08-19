@@ -18,6 +18,12 @@ describe('hrefFor', () => {
   test('a category with no synced snapshot yields no link rather than a broken one', () => {
     expect(hrefFor({ url_type: 2, category_id: 9, category_url_key: null })).toBeNull();
   });
+  test('categoryPathTemplate routes category items through a custom pattern', () => {
+    expect(hrefFor(
+      { url_type: 2, category_url_key: 'office/pins' },
+      { categoryPathTemplate: '/search?filter=categoryPath:{path}' },
+    )).toBe('/search?filter=categoryPath:office/pins');
+  });
   test('cms pages use the identifier', () => {
     expect(hrefFor({ url_type: 1, cms_page_identifier: 'about-us' })).toBe('/about-us');
   });
