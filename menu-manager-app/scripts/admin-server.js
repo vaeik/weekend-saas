@@ -95,10 +95,23 @@ async function main() {
         const b = await readBody(req);
         const cats = await demoCategories();
         const cat = b.categoryId ? cats.find((c) => c.id === Number(b.categoryId)) : null;
-        const base = b.id ? { ...(await repo.getItem(b.id)) } : { menuId, parentId: b.parentId || null, position: b.position ?? 0 };
+        const existing = b.id ? await repo.getItem(b.id) : null;
+        if (b.id && !existing) return send(res, 400, { error: `Item ${b.id} not found` });
+        const newParent = b.parentId || null;
+
+        // Reparent cycle guard (validateItem/saveItem don't check this; reorder does).
+        if (newParent && existing) {
+          const { descendantIds } = require('../src/commerce-backend-ui-1/domain/tree');
+          if (newParent === b.id || descendantIds(await repo.listItems(menuId), b.id).includes(String(newParent))) {
+            return send(res, 400, { error: 'Cannot move an item beneath itself or its own descendant' });
+          }
+        }
+
         const input = validateItem({
-          ...base,
+          ...(existing || {}),
           menuId,
+          parentId: newParent,
+          position: existing ? existing.position : (b.position ?? 0),
           title: b.title,
           urlType: cat ? 2 : 0,
           categoryId: cat ? cat.id : null,
@@ -107,6 +120,7 @@ async function main() {
         });
         const saved = await repo.saveItem({
           ...input,
+          id: b.id || undefined, // preserve id on edit; undefined => new item
           categorySnapshot: cat ? { urlKey: cat.urlPath, name: b.title, isActive: true, includeInMenu: true } : null,
         }, { actor: 'admin' });
         await bust();
