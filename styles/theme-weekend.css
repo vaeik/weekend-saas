@@ -115,11 +115,27 @@ header .nav-sections .default-content-wrapper > ul > li[aria-expanded='true'] > 
     max-width: 340px;
     min-height: 0 !important;
     max-height: none !important;
-    top: calc(var(--nav-height) - 12px);
+    top: calc(var(--nav-height) - 14px);
     padding: 14px 8px !important;
     border-top: 3px solid var(--color-weekend-orange);
     border-radius: 0 0 6px 6px;
     box-shadow: 0 16px 32px rgb(38 38 38 / 14%);
+  }
+
+  /* Transparent hover bridge across the gap between the nav bar and the panel.
+     header.js closes the menu on `mouseout` when the pointer leaves `nav`
+     (blocks/header/header.js) — without this, moving down toward the dropdown
+     crosses the overlay (outside nav) and the menu snaps shut before you reach
+     it. The ::before is part of .submenu-wrapper, so the gap hit-tests as inside
+     nav and the menu stays open. */
+  header nav .nav-sections .default-content-wrapper > ul > li[aria-expanded='true'] .submenu-wrapper::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: -22px;
+    width: 100%;
+    height: 24px;
+    background: transparent;
   }
 
   header nav .nav-sections .default-content-wrapper > ul > li[aria-expanded='true'] ul {
