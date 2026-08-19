@@ -35,7 +35,7 @@
       },
       "plugins": {
         "picker": {
-          "rootCategory": "YOUR_ROOT_CATEGORY_ID"
+          "rootCategory": "2"
         }
       },
       "menu-manager-endpoint": "https://edge-sandbox-graph.adobe.io/api/b5464f6c-b1d1-4d34-9565-4be237bf00ee/graphql",

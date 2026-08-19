@@ -18,6 +18,7 @@
     "smoke": "node scripts/smoke.js",
     "seed": "node scripts/seed-from-catalog.js",
     "seed:weekend": "node scripts/seed-weekend-menu.js",
+    "seed:weekend-demo": "node scripts/seed-weekend-demo.js",
     "menu": "node scripts/menu.js"
   },
   "dependencies": {
