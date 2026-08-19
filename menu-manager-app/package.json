@@ -19,7 +19,8 @@
     "seed": "node scripts/seed-from-catalog.js",
     "seed:weekend": "node scripts/seed-weekend-menu.js",
     "seed:weekend-demo": "node scripts/seed-weekend-demo.js",
-    "menu": "node scripts/menu.js"
+    "menu": "node scripts/menu.js",
+    "admin": "node scripts/admin-server.js"
   },
   "dependencies": {
     "@adobe/aio-lib-core-logging": "^3.0.2",
