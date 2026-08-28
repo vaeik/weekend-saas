@@ -8,3 +8,9 @@ dist/
 coverage/
 *.log
 mesh/secrets.yaml
+
+# Admin UI SDK V2 generated artifacts
+.generated/
+app.commerce.manifest.json
+src/*/web-src/dist/
+.aws.tmp.creds.json

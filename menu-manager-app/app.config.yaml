@@ -8,8 +8,18 @@ hooks:
 # this block when V2 reaches ACCS; the V1-specific surface is the registration
 # action and lib/auth.js sharedContext handling.
 extensions:
+  # V1 admin extension — kept so the storefront read path (storefront-menu-get,
+  # consumed by API Mesh) and the menu/item CRUD actions keep deploying while we
+  # migrate the admin UI to V2. Remove once the V2 app owns everything.
   commerce/backend-ui/1:
     $include: src/commerce-backend-ui-1/ext.config.yaml
+  # V2 admin UI (React 19 + Spectrum S2 SPA) — the App-Management-compatible
+  # surface. Generated from app.commerce.config.ts by `aio-commerce-lib-app`.
+  commerce/backend-ui/2:
+    $include: src/commerce-backend-ui-2/ext.config.yaml
+  # App Management lifecycle actions (app-config, association, installation).
+  commerce/extensibility/1:
+    $include: src/commerce-extensibility-1/ext.config.yaml
 
 # Written by `aio app db provision --region emea`, PLUS a `packages: {}` that
 # the provision command does not add.

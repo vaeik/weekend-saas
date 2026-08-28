@@ -1,0 +1,12 @@
+web: web-src
+
+# The [pre-app-build, pre-app-dev, pre-app-run] hooks are auto-generated. Do not remove or manually edit.
+hooks:
+  pre-app-build: EXTENSION=backend-ui/2 npx aio-commerce-lib-app hooks pre-app-build
+  pre-app-dev: EXTENSION=backend-ui/2 npx aio-commerce-lib-app hooks pre-app-dev
+  pre-app-run: EXTENSION=backend-ui/2 npx aio-commerce-lib-app hooks pre-app-run
+
+operations:
+  view:
+    - type: web
+      impl: index.html
