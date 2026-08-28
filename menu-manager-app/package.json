@@ -23,6 +23,7 @@
     "admin": "node scripts/admin-server.js"
   },
   "dependencies": {
+    "@adobe/aio-commerce-lib-app": "^1.10.1",
     "@adobe/aio-lib-core-logging": "^3.0.2",
     "@adobe/aio-lib-db": "^1.0.3",
     "@adobe/aio-lib-ims": "^8.1.2",
