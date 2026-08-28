@@ -7,6 +7,15 @@ look arbitrary until you know what they cost to discover.
 **Ticket:** EVO-217 · **Client:** Weekend Shoes · **Plan:** `Menu_Manager_App_Builder_Build_Plan.md`
 (also in the Claude project "Weekend Shoes") · **Setup:** `SETUP.md`
 
+> ▶ **START HERE — `PHASE3-V2.md`.** A real ACCS instance now exists
+> (`Scandiweb Sandbox`, `EGD3J2kAQ3pgLrtoWaoCJR`, org `scandiwebptrsd`) and its
+> Commerce Admin has the Admin UI SDK enabled. App Management **found** this app
+> but rejects it as "not compatible" because it is on the **V1** contract. The
+> remaining work — moving to the **Admin UI SDK V2 / App Management** contract so
+> the menu appears in the Admin — is fully scoped in `PHASE3-V2.md` (validated
+> `app.commerce.config.ts` seeded; two gates identified: a React 19 web-src
+> frontend and the `AIO_COMMERCE_AUTH_IMS_*` technical-account credentials).
+
 ## What this is
 
 `ScandiPWA/MenuOrganizer` (80 files, 3 MySQL tables, 13 adminhtml controllers,
@@ -155,9 +164,12 @@ publish this app's source on the storefront domain.
 1. Query the mesh end to end (see "Storefront integration"), then push the branch
    and verify the nav on `menu-manager--weekend-saas--vaeik.aem.page`.
 3. Subscribe the two category events (`commerce/event-subscriptions.json`).
-4. **Phase 3: the React admin SPA.** R1 is resolved — `TreeView` + `useDragAndDrop`
-   works (spike verified drag reparenting, keyboard DnD, and both guards). Build it
-   in the real `web-src` scaffold from day one.
+4. **Phase 3: the V2 / App Management app — see `PHASE3-V2.md`.** This is now the
+   critical path: App Management on GA ACCS only accepts the **V2** contract
+   (`commerce/backend-ui/2` + `commerce/extensibility/1`), so the menu will not
+   appear until the app is migrated. R1 is resolved — `TreeView` +
+   `useDragAndDrop` works — and the admin UI can be ported from
+   `scripts/admin-server.js` into the React 19 `web-src`.
 
 ## Governance flag
 
