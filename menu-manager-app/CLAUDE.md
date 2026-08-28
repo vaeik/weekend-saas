@@ -128,6 +128,32 @@ These are not documented anywhere useful. Each one broke a deploy.
    precompiled styles break (missing `--lightningcss-light/-dark`); layout goes
    wrong with no build error. Build the admin UI inside the real `web-src`
    scaffold, not a side project. See `spikes/tree-editor/FINDINGS.md`.
+10. **The V2 web SPA MUST be deployed with `NODE_ENV=development` on the CLI.** `aio`
+    always runs Parcel in `mode: 'development'` (aio-lib-web's `bundle()` never sets a
+    mode, and Parcel defaults to development), so the JSX transform emits `jsxDEV()`
+    calls. But `aio app deploy` itself **writes `NODE_ENV=production` into `.env`** (and
+    `--web-optimize` inlines it too), which resolves React to its **production**
+    `jsx-dev-runtime` where `jsxDEV = void 0`. Result: the deployed SPA throws
+    `TypeError: jsxDEV is not a function` and renders **nothing** — a blank/spinner page
+    that looks exactly like the unrelated iframe-shell error. Deleting the `.env` line
+    is futile (deploy re-adds it); instead **override on the command line** —
+    `NODE_ENV=development aio app deploy --force-build` — because dotenv does not
+    override an env var already set in the process, so the CLI value wins and React +
+    the transform agree. (A true minified production bundle would need Parcel
+    `mode: 'production'`, which aio does not expose — the dev bundle is the working
+    compromise.) Also: `--force-build` and clearing `.parcel-cache` are needed or edits
+    silently don't rebuild.
+11. **Admin actions need TWO headers, not one.** `require-adobe-auth` rejects with
+    `cannot authorize request, reason: missing x-gw-ims-org-id header` unless the browser
+    sends **both** `Authorization: Bearer <imsToken>` **and** `x-gw-ims-org-id: <imsOrgId>`
+    (both come from `useIms()`). See `web-src/src/lib/menu-api.ts`.
+12. **The `?devMode=true#/custom-apps/?localDevUrl=…` shell harness does NOT populate
+    `imsOrgId`** (token yes, org no), so authenticated action calls fail there even when
+    correct — it only proves the SPA *renders*. Full CRUD must be verified in the real
+    admin sharedContext. Also, adobeio-static's CloudFront caches `index.html` (query
+    strings vary the key, but the harness strips them), so a fresh deploy can take a CDN
+    TTL to appear in the browser — verify the live hash with
+    `curl '…/index.html?x=$(date +%s)'`.
 
 ## The testing rule that matters
 

@@ -18,7 +18,7 @@ const ACTIONS_BASE =
   "https://1951857-weekendmenumanager-stage.adobeioruntime.net/api/v1/web/menu-manager";
 
 async function request<T>(
-  token: string,
+  auth: { token: string; orgId: string },
   action: string,
   opts: { method?: "GET" | "POST"; query?: Record<string, string>; body?: unknown } = {},
 ): Promise<T> {
@@ -30,7 +30,10 @@ async function request<T>(
   const res = await fetch(url.toString(), {
     method,
     headers: {
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${auth.token}`,
+      // require-adobe-auth validates the token against this org; without the
+      // header it rejects with "missing x-gw-ims-org-id header".
+      "x-gw-ims-org-id": auth.orgId,
       ...(method === "POST" ? { "Content-Type": "application/json" } : {}),
     },
     body: method === "POST" ? JSON.stringify(opts.body ?? {}) : undefined,
@@ -69,29 +72,30 @@ function draftToItem(draft: ItemDraft): Record<string, unknown> {
   };
 }
 
-export function createMenuApi(token: string) {
+export function createMenuApi(token: string, orgId: string) {
+  const auth = { token, orgId };
   return {
     async listMenus(): Promise<Menu[]> {
-      const r = await request<MenuListResult>(token, "menu-list", {
+      const r = await request<MenuListResult>(auth, "menu-list", {
         query: { pageSize: "200" },
       });
       return r.menus ?? [];
     },
 
     listItems(menuId: string): Promise<ItemListResult> {
-      return request<ItemListResult>(token, "item-list", { query: { menuId } });
+      return request<ItemListResult>(auth, "item-list", { query: { menuId } });
     },
 
     saveItem(draft: ItemDraft): Promise<{ item: { id: string } }> {
-      return request(token, "item-save", { method: "POST", body: draftToItem(draft) });
+      return request(auth, "item-save", { method: "POST", body: draftToItem(draft) });
     },
 
     deleteItem(id: string): Promise<{ deleted: boolean }> {
-      return request(token, "item-delete", { method: "POST", body: { id } });
+      return request(auth, "item-delete", { method: "POST", body: { id } });
     },
 
     reorderItem(itemId: string, parentId: string | null, position: number): Promise<unknown> {
-      return request(token, "item-reorder", {
+      return request(auth, "item-reorder", {
         method: "POST",
         body: { itemId, parentId, position },
       });

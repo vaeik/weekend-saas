@@ -73,7 +73,11 @@ function targetLabel(item: MenuItem): string {
 export function MainPage() {
   const { data, error: imsError } = useIms();
   const token = data?.imsToken ?? null;
-  const api = useMemo(() => (token ? createMenuApi(token) : null), [token]);
+  const orgId = data?.imsOrgId ?? null;
+  const api = useMemo(
+    () => (token && orgId ? createMenuApi(token, orgId) : null),
+    [token, orgId],
+  );
 
   const [menu, setMenu] = useState<Menu | null>(null);
   const [tree, setTree] = useState<MenuNode[]>([]);
