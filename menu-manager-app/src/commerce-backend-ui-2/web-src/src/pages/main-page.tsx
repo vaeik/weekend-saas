@@ -25,7 +25,14 @@ import {
 } from "@react-spectrum/s2";
 
 import { createMenuApi } from "#web/lib/menu-api.ts";
-import type { FlatRow, ItemDraft, Menu, MenuItem, MenuNode } from "#web/lib/types.ts";
+import type {
+  CatalogData,
+  FlatRow,
+  ItemDraft,
+  Menu,
+  MenuItem,
+  MenuNode,
+} from "#web/lib/types.ts";
 import { URL_TYPE } from "#web/lib/types.ts";
 import { flattenTree, forbiddenParentIds, targetLabel } from "#web/lib/tree-util.ts";
 import { ItemGrid } from "#web/components/item-grid.tsx";
@@ -93,6 +100,7 @@ export function MainPage() {
   const [tab, setTab] = useState<string>("tree");
   const [view, setView] = useState<View>({ kind: "list" });
   const [deleteTarget, setDeleteTarget] = useState<MenuItem | null>(null);
+  const [catalog, setCatalog] = useState<CatalogData>({ categories: [], cmsPages: [] });
 
   const rows: FlatRow[] = useMemo(() => flattenTree(tree), [tree]);
 
@@ -123,6 +131,22 @@ export function MainPage() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  // Catalog (categories / CMS pages) for the editor pickers — loaded once,
+  // best-effort: a failure just falls the editor back to manual id entry.
+  useEffect(() => {
+    if (!api) return;
+    let cancelled = false;
+    api
+      .listCatalog()
+      .then((c) => {
+        if (!cancelled) setCatalog({ categories: c.categories ?? [], cmsPages: c.cmsPages ?? [] });
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [api]);
 
   const siblingsOf = useCallback(
     (parentId: string | null) =>
@@ -290,6 +314,8 @@ export function MainPage() {
           draft={view.draft}
           heading={view.heading}
           parentOptions={parentOptionsFor(view.isNew, view.draft)}
+          categories={catalog.categories}
+          cmsPages={catalog.cmsPages}
           isSaving={busy}
           onSave={(d) => void saveItem(d)}
           onBack={() => setView({ kind: "list" })}

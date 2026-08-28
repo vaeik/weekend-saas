@@ -4,6 +4,8 @@ import {
   ActionButton,
   Button,
   ButtonGroup,
+  ComboBox,
+  ComboBoxItem,
   Divider,
   Form,
   Heading,
@@ -14,7 +16,7 @@ import {
   TextField,
 } from "@react-spectrum/s2";
 
-import type { ItemDraft } from "#web/lib/types.ts";
+import type { CatalogCategory, CmsPageOption, ItemDraft } from "#web/lib/types.ts";
 import { URL_TYPE } from "#web/lib/types.ts";
 
 interface ParentOption {
@@ -26,6 +28,8 @@ interface ItemEditPageProps {
   draft: ItemDraft;
   heading: string;
   parentOptions: ParentOption[];
+  categories: CatalogCategory[];
+  cmsPages: CmsPageOption[];
   isSaving: boolean;
   onSave: (draft: ItemDraft) => void;
   onDelete?: () => void;
@@ -39,6 +43,8 @@ export function ItemEditPage({
   draft: initial,
   heading,
   parentOptions,
+  categories,
+  cmsPages,
   isSaving,
   onSave,
   onDelete,
@@ -63,6 +69,17 @@ export function ItemEditPage({
     if (titleInvalid || targetInvalid) return;
     onSave(draft);
   };
+
+  // Keep the current selection visible even if it is not in the fetched list
+  // (e.g. a category outside the walked depth, or a stale id).
+  const categoryOptions: CatalogCategory[] = [...categories];
+  if (draft.categoryId != null && !categoryOptions.some((c) => c.id === draft.categoryId)) {
+    categoryOptions.unshift({ id: draft.categoryId, label: `#${draft.categoryId}`, urlPath: "", depth: 0 });
+  }
+  const cmsOptions: CmsPageOption[] = [...cmsPages];
+  if (draft.cmsPageId != null && !cmsOptions.some((p) => p.id === draft.cmsPageId)) {
+    cmsOptions.unshift({ id: draft.cmsPageId, identifier: "", title: `#${draft.cmsPageId}` });
+  }
 
   return (
     <div>
@@ -105,24 +122,62 @@ export function ItemEditPage({
               description="e.g. /women or https://example.com"
             />
           )}
-          {draft.urlType === URL_TYPE.CATEGORY && (
-            <TextField
-              label="Category ID"
-              value={draft.categoryId == null ? "" : String(draft.categoryId)}
-              onChange={(v) => set("categoryId", parseIntOrNull(v))}
-              isRequired
-              isInvalid={draft.categoryId == null}
-            />
-          )}
-          {draft.urlType === URL_TYPE.CMS_PAGE && (
-            <TextField
-              label="CMS page ID"
-              value={draft.cmsPageId == null ? "" : String(draft.cmsPageId)}
-              onChange={(v) => set("cmsPageId", parseIntOrNull(v))}
-              isRequired
-              isInvalid={draft.cmsPageId == null}
-            />
-          )}
+          {draft.urlType === URL_TYPE.CATEGORY &&
+            (categoryOptions.length > 0 ? (
+              <ComboBox
+                label="Category"
+                selectedKey={draft.categoryId == null ? null : String(draft.categoryId)}
+                onSelectionChange={(k: Key | null) =>
+                  set("categoryId", k == null ? null : Number(k))
+                }
+                isRequired
+                isInvalid={draft.categoryId == null}
+                description="Type to search the catalog"
+              >
+                {categoryOptions.map((c) => (
+                  <ComboBoxItem key={String(c.id)} id={String(c.id)} textValue={c.label}>
+                    {`${"— ".repeat(c.depth)}${c.label}`}
+                  </ComboBoxItem>
+                ))}
+              </ComboBox>
+            ) : (
+              <TextField
+                label="Category ID"
+                value={draft.categoryId == null ? "" : String(draft.categoryId)}
+                onChange={(v) => set("categoryId", parseIntOrNull(v))}
+                isRequired
+                isInvalid={draft.categoryId == null}
+                description="Catalog list unavailable — enter the id"
+              />
+            ))}
+          {draft.urlType === URL_TYPE.CMS_PAGE &&
+            (cmsOptions.length > 0 ? (
+              <ComboBox
+                label="CMS page"
+                selectedKey={draft.cmsPageId == null ? null : String(draft.cmsPageId)}
+                onSelectionChange={(k: Key | null) =>
+                  set("cmsPageId", k == null ? null : Number(k))
+                }
+                isRequired
+                isInvalid={draft.cmsPageId == null}
+                description="Type to search CMS pages"
+              >
+                {cmsOptions.map((p) => (
+                  <ComboBoxItem key={String(p.id)} id={String(p.id)} textValue={p.title}>
+                    {p.title}
+                  </ComboBoxItem>
+                ))}
+              </ComboBox>
+            ) : (
+              <TextField
+                label="CMS page ID"
+                value={draft.cmsPageId == null ? "" : String(draft.cmsPageId)}
+                onChange={(v) => set("cmsPageId", parseIntOrNull(v))}
+                isRequired
+                isInvalid={draft.cmsPageId == null}
+                description="CMS page list unavailable — enter the id"
+              />
+            ))}
 
           <Picker
             label="Parent"

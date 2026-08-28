@@ -72,3 +72,23 @@ export interface ItemDraft {
 export interface FlatRow extends MenuItem {
   depth: number;
 }
+
+/** A catalog category for the picker. */
+export interface CatalogCategory {
+  id: number;
+  label: string;
+  urlPath: string;
+  depth: number;
+}
+
+/** A CMS page for the picker. */
+export interface CmsPageOption {
+  id: number;
+  identifier: string;
+  title: string;
+}
+
+export interface CatalogData {
+  categories: CatalogCategory[];
+  cmsPages: CmsPageOption[];
+}

@@ -1,4 +1,5 @@
 import type {
+  CatalogData,
   ItemDraft,
   ItemListResult,
   Menu,
@@ -85,6 +86,10 @@ export function createMenuApi(token: string, orgId: string) {
 
     listItems(menuId: string): Promise<ItemListResult> {
       return request<ItemListResult>(auth, "item-list", { query: { menuId } });
+    },
+
+    listCatalog(): Promise<CatalogData> {
+      return request<CatalogData>(auth, "catalog-list");
     },
 
     saveItem(draft: ItemDraft): Promise<{ item: { id: string } }> {
