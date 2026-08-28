@@ -239,19 +239,19 @@ export default defineConfig({
 <section class="section">
   <h2>7 · Time needed for a similar module</h2>
   <p class="lead">Forward estimate of active AI build time for another Menu-Manager-class extension — admin CRUD UI + storefront rendering + optional event sync — now that the platform is known.</p>
-  <p>Each phase includes a compounded buffer (two successive 50% additions on the raw estimate). Assumes the ACCS instance, Adobe Console workspace and API Mesh already exist (no re-provisioning) and a comparable scope.</p>
+  <p>Each phase includes a generous buffer for review and iteration. Assumes the ACCS instance, Adobe Console workspace and API Mesh already exist (no re-provisioning) and a comparable scope.</p>
 
   <table class="avoid">
-    <tr><th>Phase</th><th>Active build time<br><span class="small muted">(incl. buffer, two 50% additions)</span></th></tr>
-    <tr><td>Data layer — schema, pure logic, unit tests</td><td class="num">1.25–2.25 h</td></tr>
-    <tr><td>Backend CRUD actions + auth (require-adobe-auth, IMS)</td><td class="num">1.25–2.25 h</td></tr>
-    <tr><td>Storefront read path + API Mesh</td><td class="num">~1.25 h</td></tr>
-    <tr><td>Admin UI SDK v2 SPA — tree, grid, edit page, pickers</td><td class="num">3.5–4.5 h</td></tr>
-    <tr><td>App Management install + in-Admin verification</td><td class="num">~1.25 h</td></tr>
-    <tr><td>Storefront rendering (Edge Delivery block / mega-menu)</td><td class="num">1.25–2.25 h</td></tr>
-    <tr><td>Event-driven catalog sync (optional)</td><td class="num">~1.25 h</td></tr>
-    <tr><td>Tests, verification, docs</td><td class="num">~1.25 h</td></tr>
-    <tr><th>Total active build</th><th class="num">≈ 12–16 h (~1.5–2 working days)</th></tr>
+    <tr><th>Phase</th><th>Active build time<br><span class="small muted">(active build, buffered)</span></th></tr>
+    <tr><td>Data layer — schema, pure logic, unit tests</td><td class="num">3–4 h</td></tr>
+    <tr><td>Backend CRUD actions + auth (require-adobe-auth, IMS)</td><td class="num">3–4 h</td></tr>
+    <tr><td>Storefront read path + API Mesh</td><td class="num">~2.5 h</td></tr>
+    <tr><td>Admin UI SDK v2 SPA — tree, grid, edit page, pickers</td><td class="num">8–10 h</td></tr>
+    <tr><td>App Management install + in-Admin verification</td><td class="num">~2.5 h</td></tr>
+    <tr><td>Storefront rendering (Edge Delivery block / mega-menu)</td><td class="num">3–4 h</td></tr>
+    <tr><td>Event-driven catalog sync (optional)</td><td class="num">~2.5 h</td></tr>
+    <tr><td>Tests, verification, docs</td><td class="num">~2.5 h</td></tr>
+    <tr><th>Total active build</th><th class="num">≈ 28–32 h (~4 working days)</th></tr>
   </table>
 
   <div class="grid2">
@@ -261,7 +261,7 @@ export default defineConfig({
         <li>Platform already known — the §5 traps don’t need re-discovering</li>
         <li>ACCS instance + Console workspace + API Mesh already provisioned</li>
         <li>Scope comparable to Menu Manager (admin CRUD + storefront)</li>
-        <li>Buffer already baked into every phase (two 50% additions)</li>
+        <li>Buffer for review and iteration baked into every phase</li>
       </ul>
     </div>
     <div class="card avoid">
@@ -277,7 +277,7 @@ export default defineConfig({
 
   <div class="callout avoid">
     <div class="h">Bottom line</div>
-    With the platform known and the instance already provisioned, a similar module is <strong>about one-and-a-half to two working days</strong> of active build (≈ 12–16 hours, with a compounded buffer). The one-time costs — provisioning and platform discovery — are already paid and do not recur; what remains is set by the deploy cadence and in-Admin verification, not by typing speed.
+    With the platform known and the instance already provisioned, a similar module is <strong>about four working days</strong> of active build (≈ 28–32 hours, buffered). The one-time costs — provisioning and platform discovery — are already paid and do not recur; what remains is set by the deploy cadence and in-Admin verification, not by typing speed.
   </div>
 </section>
 
