@@ -9,16 +9,20 @@ look arbitrary until you know what they cost to discover.
 
 > ▶ **START HERE — `PHASE3-V2.md`.** A real ACCS instance exists
 > (`Scandiweb Sandbox`, `EGD3J2kAQ3pgLrtoWaoCJR`, org `scandiwebptrsd`). The app
-> has been **migrated to Admin UI SDK V2 / App Management, deployed, and
-> installed** — the **Scandiweb → Menu Manager** menu now appears in the ACCS
-> Commerce Admin (App Management → Associate → Install, both steps green). The
-> V2 extension points (`commerce/backend-ui/2` React SPA + `commerce/extensibility/1`)
-> live under `src/`. **The real admin UI is now ported** — the React 19 + Spectrum
-> S2 SPA (`src/commerce-backend-ui-2/web-src/src/pages/main-page.tsx` + `components/`
-> + `lib/`) loads the menu, renders the tree, and does add/edit/delete/reorder by
-> calling the deployed `menu-list`/`item-*` actions with the IMS token from
-> `useIms()`. It renders **only inside the Experience Cloud shell** — a direct
-> menu-page URL throws `Needs to be within an iframe`.
+> is **migrated to Admin UI SDK V2 / App Management, deployed, and installed**, and
+> the **Menu Manager is live and working in the ACCS Commerce Admin** (Apps →
+> Scandiweb Menu Manager → Menu Manager). Verified end-to-end in the real admin: it
+> loads the seeded weekend.lv menu and offers **Tree** and **Grid** (Spectrum
+> `TableView`) views plus a **full-page edit form** (`item-edit-page.tsx`) with a
+> parent picker, position, and add/edit/delete/reorder — all via the deployed
+> `menu-list`/`item-*` actions.
+>
+> **Three fixes were needed to get it rendering in the admin (see gotchas 10–12):**
+> the SPA must be deployed with `NODE_ENV=development` (jsxDEV mismatch), the client
+> must send `x-gw-ims-org-id` from `useIms()`, and `listMenus` returns menus under
+> `items` not `menus`. The SPA renders only inside the admin's iframe/sharedContext
+> — a direct menu-page URL, or the generic `custom-apps` dev harness, lacks the org
+> context and only proves the page *renders*.
 
 ## What this is
 
