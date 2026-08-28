@@ -1,5 +1,45 @@
 # Phase 3 — migrate Menu Manager to Admin UI SDK V2 / App Management
 
+> ## ✅ UPDATE 2026-08-28 — the V2 migration is DONE and installed.
+> The app was migrated to the V2 contract, deployed, and **installed into the
+> ACCS Commerce Admin via App Management** (Associate → Install → *Enable Admin
+> UI SDK* + *Register Extension* both green). The **Scandiweb → Menu Manager**
+> menu appears in the admin nav and its page route loads. Both gates from the
+> original plan turned out non-blocking: React 19 was already present, and the
+> `installation` action's IMS creds were handled by the build's credential sync.
+>
+> **What's actually in the repo now:** `commerce/backend-ui/2` (React 19 +
+> Spectrum S2 SPA under `src/commerce-backend-ui-2/web-src`) and
+> `commerce/extensibility/1` (App Management actions), both wired into
+> `app.config.yaml` alongside the kept V1 extension.
+>
+> **✅ The real admin UI is ported** (replacing the scaffold "Welcome" page):
+> - `pages/main-page.tsx` — loads the `main` menu via `menu-list`, its items via
+>   `item-list`, renders the tree, and wires add / edit / delete / move-up /
+>   move-down. Loading / error / empty states + success/error toasts.
+> - `components/item-dialog.tsx` — the add/edit form (title, link type →
+>   URL/category/CMS target, open-in-new-tab, active, identifier, CSS class).
+> - `lib/menu-api.ts` — thin client over the deployed actions. Auth is the IMS
+>   token from `useIms()` sent as `Authorization: Bearer …`; the runtime already
+>   returns `Access-Control-Allow-Origin: *` and answers the OPTIONS preflight, so
+>   **no CORS shim on the actions was needed** (verified against the live Stage
+>   endpoint). `lib/types.ts` mirrors the backend domain shapes.
+>
+> Reorder maps to `item-reorder` (same parent, new index); the domain layer
+> re-densifies sibling positions and re-computes levels. Parcel transpiles the TSX
+> without type-checking, so run the S2 prop names past the `.d.ts` before a deploy
+> — a wrong prop is silently dropped, not a build error. Confirmed live: the
+> deployed bundle contains the new UI strings and no longer the scaffold's.
+>
+> **Only remaining verification:** the SPA renders **only inside the Experience
+> Cloud unified shell** — loading the menu-page URL directly throws `Needs to be
+> within an iframe`. Check it in a normal admin session (Scandiweb → Menu
+> Manager), not by direct URL.
+>
+> Everything below is the historical scoping that got us here.
+
+---
+
 Status as of 2026-08-28. This is the remaining work to make the Menu Manager
 **appear inside the ACCS Commerce Admin**. Everything up to this point is done
 and verified.

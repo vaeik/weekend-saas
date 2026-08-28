@@ -7,14 +7,18 @@ look arbitrary until you know what they cost to discover.
 **Ticket:** EVO-217 · **Client:** Weekend Shoes · **Plan:** `Menu_Manager_App_Builder_Build_Plan.md`
 (also in the Claude project "Weekend Shoes") · **Setup:** `SETUP.md`
 
-> ▶ **START HERE — `PHASE3-V2.md`.** A real ACCS instance now exists
-> (`Scandiweb Sandbox`, `EGD3J2kAQ3pgLrtoWaoCJR`, org `scandiwebptrsd`) and its
-> Commerce Admin has the Admin UI SDK enabled. App Management **found** this app
-> but rejects it as "not compatible" because it is on the **V1** contract. The
-> remaining work — moving to the **Admin UI SDK V2 / App Management** contract so
-> the menu appears in the Admin — is fully scoped in `PHASE3-V2.md` (validated
-> `app.commerce.config.ts` seeded; two gates identified: a React 19 web-src
-> frontend and the `AIO_COMMERCE_AUTH_IMS_*` technical-account credentials).
+> ▶ **START HERE — `PHASE3-V2.md`.** A real ACCS instance exists
+> (`Scandiweb Sandbox`, `EGD3J2kAQ3pgLrtoWaoCJR`, org `scandiwebptrsd`). The app
+> has been **migrated to Admin UI SDK V2 / App Management, deployed, and
+> installed** — the **Scandiweb → Menu Manager** menu now appears in the ACCS
+> Commerce Admin (App Management → Associate → Install, both steps green). The
+> V2 extension points (`commerce/backend-ui/2` React SPA + `commerce/extensibility/1`)
+> live under `src/`. **The real admin UI is now ported** — the React 19 + Spectrum
+> S2 SPA (`src/commerce-backend-ui-2/web-src/src/pages/main-page.tsx` + `components/`
+> + `lib/`) loads the menu, renders the tree, and does add/edit/delete/reorder by
+> calling the deployed `menu-list`/`item-*` actions with the IMS token from
+> `useIms()`. It renders **only inside the Experience Cloud shell** — a direct
+> menu-page URL throws `Needs to be within an iframe`.
 
 ## What this is
 
