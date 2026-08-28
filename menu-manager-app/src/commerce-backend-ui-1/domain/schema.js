@@ -39,6 +39,13 @@ const ITEM_FIELDS = {
   advertisementLink: { type: 'string', maxLength: 255 },
   advertisementSecond: { type: 'string', maxLength: 255 },
   advertisementSecondLink: { type: 'string', maxLength: 255 },
+  // Legacy MenuOrganizer passthrough (schema.graphqls fields not in db_schema.xml
+  // — see Q2). Persisted here so the V2 admin can author them and the storefront
+  // mega-menu can render them; flattenForStorefront already emits all four.
+  promoImage: { type: 'string', maxLength: 255 },
+  isPromo: { type: 'boolean', default: false },
+  isWithCmsBlock: { type: 'boolean', default: false },
+  customRedirect: { type: 'string', maxLength: 255 },
   level: { type: 'integer', nullable: true, default: 1 }
 };
 

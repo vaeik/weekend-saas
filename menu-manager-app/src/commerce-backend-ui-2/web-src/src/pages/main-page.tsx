@@ -60,6 +60,15 @@ function emptyDraft(menuId: string, parentId: string | null, position: number): 
     identifier: "",
     itemClass: "",
     icon: "",
+    iconAlt: "",
+    advertisement: "",
+    advertisementLink: "",
+    advertisementSecond: "",
+    advertisementSecondLink: "",
+    promoImage: "",
+    isPromo: false,
+    isWithCmsBlock: false,
+    customRedirect: "",
   };
 }
 
@@ -79,6 +88,15 @@ function toDraft(item: MenuItem): ItemDraft {
     identifier: item.identifier ?? "",
     itemClass: item.itemClass ?? "",
     icon: item.icon ?? "",
+    iconAlt: item.iconAlt ?? "",
+    advertisement: item.advertisement ?? "",
+    advertisementLink: item.advertisementLink ?? "",
+    advertisementSecond: item.advertisementSecond ?? "",
+    advertisementSecondLink: item.advertisementSecondLink ?? "",
+    promoImage: item.promoImage ?? "",
+    isPromo: item.isPromo === true,
+    isWithCmsBlock: item.isWithCmsBlock === true,
+    customRedirect: item.customRedirect ?? "",
   };
 }
 

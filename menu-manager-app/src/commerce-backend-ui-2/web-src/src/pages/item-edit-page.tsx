@@ -218,6 +218,62 @@ export function ItemEditPage({
           <Switch isSelected={draft.isActive} onChange={(sel) => set("isActive", sel)}>
             Active
           </Switch>
+
+          <Divider size="S" />
+          <Text>
+            <strong>Display &amp; promo (mega-menu)</strong>
+          </Text>
+
+          <TextField
+            label="Icon URL"
+            value={draft.icon}
+            onChange={(v) => set("icon", v)}
+            description="Small icon shown before the label"
+          />
+          <TextField
+            label="Icon alt text"
+            value={draft.iconAlt}
+            onChange={(v) => set("iconAlt", v)}
+          />
+
+          <TextField
+            label="Promo image URL"
+            value={draft.advertisement}
+            onChange={(v) => set("advertisement", v)}
+            description="Shown in the mega-menu panel of a top-level item"
+          />
+          <TextField
+            label="Promo image link"
+            value={draft.advertisementLink}
+            onChange={(v) => set("advertisementLink", v)}
+          />
+          <TextField
+            label="Second promo image URL"
+            value={draft.advertisementSecond}
+            onChange={(v) => set("advertisementSecond", v)}
+          />
+          <TextField
+            label="Second promo image link"
+            value={draft.advertisementSecondLink}
+            onChange={(v) => set("advertisementSecondLink", v)}
+          />
+
+          <TextField
+            label="Custom redirect (optional)"
+            value={draft.customRedirect}
+            onChange={(v) => set("customRedirect", v)}
+            description="Overrides the computed target for this item"
+          />
+
+          <Switch isSelected={draft.isPromo} onChange={(sel) => set("isPromo", sel)}>
+            Highlight as promo (e.g. Outlet)
+          </Switch>
+          <Switch
+            isSelected={draft.isWithCmsBlock}
+            onChange={(sel) => set("isWithCmsBlock", sel)}
+          >
+            Render a CMS block
+          </Switch>
         </Form>
 
         <div style={{ display: "flex", alignItems: "center", marginTop: 24 }}>

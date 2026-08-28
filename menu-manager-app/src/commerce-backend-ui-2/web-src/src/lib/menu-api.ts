@@ -71,6 +71,15 @@ function draftToItem(draft: ItemDraft): Record<string, unknown> {
     identifier: draft.identifier.trim(),
     itemClass: draft.itemClass.trim(),
     icon: draft.icon.trim(),
+    iconAlt: draft.iconAlt.trim(),
+    advertisement: draft.advertisement.trim(),
+    advertisementLink: draft.advertisementLink.trim(),
+    advertisementSecond: draft.advertisementSecond.trim(),
+    advertisementSecondLink: draft.advertisementSecondLink.trim(),
+    promoImage: draft.promoImage.trim(),
+    isPromo: draft.isPromo,
+    isWithCmsBlock: draft.isWithCmsBlock,
+    customRedirect: draft.customRedirect.trim(),
   };
 }
 

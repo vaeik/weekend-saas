@@ -19,6 +19,15 @@ export interface MenuItem {
   position: number;
   isActive?: boolean;
   icon?: string;
+  iconAlt?: string;
+  advertisement?: string;
+  advertisementLink?: string;
+  advertisementSecond?: string;
+  advertisementSecondLink?: string;
+  promoImage?: string;
+  isPromo?: boolean;
+  isWithCmsBlock?: boolean;
+  customRedirect?: string;
   level?: number | null;
 }
 
@@ -66,6 +75,15 @@ export interface ItemDraft {
   identifier: string;
   itemClass: string;
   icon: string;
+  iconAlt: string;
+  advertisement: string;
+  advertisementLink: string;
+  advertisementSecond: string;
+  advertisementSecondLink: string;
+  promoImage: string;
+  isPromo: boolean;
+  isWithCmsBlock: boolean;
+  customRedirect: string;
 }
 
 /** A flat menu item annotated with its depth in the tree (for the grid). */
