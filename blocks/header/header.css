@@ -890,3 +890,151 @@ body:has(.seller-assisted-buying-banner) {
     display: inline-block;
   }
 }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Menu Manager mega-menu.
+   Scoped to `.nav-sections[data-menu-source="menu-manager"]` so the authored
+   /nav fallback and every other site keep the original single-column dropdown.
+   Turns the open panel into a wide, multi-column mega-menu: level-2 items are
+   column headers, level-3 items list beneath them, and promo images sit in a
+   panel to the right.
+
+   Ordering here is intentional (progressive overrides of the boilerplate
+   defaults), so no-descending-specificity is disabled for this block.
+   ───────────────────────────────────────────────────────────────────────── */
+/* stylelint-disable no-descending-specificity */
+@media (min-width: 900px) {
+  /* Anchor the absolute panel to the whole <nav> so it spans the full header.
+     Every intermediate ancestor is forced static so `nav` is the containing
+     block, and the panel gets full header width. */
+  header nav:has(.nav-sections[data-menu-source="menu-manager"]) {
+    position: relative;
+  }
+
+  header nav .nav-sections[data-menu-source="menu-manager"],
+  header nav .nav-sections[data-menu-source="menu-manager"] .default-content-wrapper,
+  header nav .nav-sections[data-menu-source="menu-manager"] .default-content-wrapper > ul,
+  header nav .nav-sections[data-menu-source="menu-manager"] .default-content-wrapper > ul > li {
+    position: static;
+  }
+
+  /* The open panel: a full-width mega-menu, not a narrow dropdown. */
+  header nav .nav-sections[data-menu-source="menu-manager"]
+    .default-content-wrapper > ul > li[aria-expanded='true'] .submenu-wrapper {
+    position: absolute !important;
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+    width: min(1120px, 94vw) !important;
+    min-width: 0 !important;
+    max-width: 94vw !important;
+    box-sizing: border-box !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    padding: 24px clamp(16px, 3vw, 48px);
+    box-shadow: 0 12px 24px rgb(0 0 0 / 8%);
+    border-top: 1px solid var(--color-neutral-300, #e0e0e0);
+  }
+
+  /* Level-2 list becomes a row of columns that wraps. */
+  header nav .nav-sections[data-menu-source="menu-manager"]
+    .default-content-wrapper > ul > li[aria-expanded='true'] > .submenu-wrapper > ul {
+    display: flex !important;
+    flex-flow: row wrap !important;
+    align-items: flex-start;
+    gap: 4px 40px;
+    width: 100% !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    margin: 0;
+    overflow: visible;
+  }
+
+  header nav .nav-sections[data-menu-source="menu-manager"] .submenu-wrapper > ul > li {
+    flex: 0 0 auto;
+    min-width: 150px;
+    max-width: none;
+    margin: 0 0 16px;
+  }
+
+  /* Level-2 label = column header. */
+  header nav .nav-sections[data-menu-source="menu-manager"] .submenu-wrapper > ul > li > a,
+  header nav .nav-sections[data-menu-source="menu-manager"] .submenu-wrapper > ul > li > span {
+    display: block;
+    font-weight: 700;
+    padding: 2px 0;
+    margin-bottom: 4px;
+    color: var(--color-neutral-900, #131313);
+  }
+
+  /* Level-3 shown as a list under its column header. */
+  header nav .nav-sections[data-menu-source="menu-manager"] .submenu-wrapper > ul > li > ul {
+    display: block !important;
+    position: static !important;
+    flex-flow: initial;
+    margin: 0;
+    max-height: none !important;
+    min-height: 0 !important;
+    width: auto !important;
+  }
+
+  header nav .nav-sections[data-menu-source="menu-manager"] .submenu-wrapper > ul > li > ul::before {
+    display: none;
+  }
+
+  header nav .nav-sections[data-menu-source="menu-manager"] .submenu-wrapper > ul > li > ul > li {
+    min-width: 0;
+    max-width: none;
+  }
+
+  header nav .nav-sections[data-menu-source="menu-manager"] .submenu-wrapper > ul > li > ul > li > a {
+    display: block;
+    font-weight: 400;
+    padding: 3px 0;
+    color: var(--color-neutral-700, #464646);
+  }
+
+  header nav .nav-sections[data-menu-source="menu-manager"] .submenu-wrapper > ul > li > ul > li > a:hover {
+    color: var(--color-brand-500, #d1410c);
+    text-decoration: underline;
+  }
+
+  /* Promo cell: pushed to the right of the columns, images side by side. */
+  header nav .nav-sections[data-menu-source="menu-manager"] .submenu-wrapper > ul > li.nav-promo-cell {
+    margin-left: auto;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    min-width: 0;
+  }
+
+  header nav .nav-sections[data-menu-source="menu-manager"] .nav-promo-cell .nav-promo {
+    display: block;
+    max-width: 240px;
+  }
+
+  header nav .nav-sections[data-menu-source="menu-manager"] .nav-promo-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 6px;
+  }
+
+  /* Leading item icons. */
+  header nav .nav-sections[data-menu-source="menu-manager"] .nav-item-icon {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+
+  /* is_promo items (e.g. an "Outlet") are highlighted. */
+  header nav .nav-sections[data-menu-source="menu-manager"]
+    .default-content-wrapper > ul > li.nav-item-promo > a {
+    color: var(--color-brand-500, #d1410c);
+    font-weight: 700;
+  }
+}
+
+/* stylelint-enable no-descending-specificity */

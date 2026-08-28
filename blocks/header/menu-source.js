@@ -21,6 +21,13 @@ const TIMEOUT_MS = 2000;
  * the storefront never calls Commerce to resolve a category id.
  */
 export function hrefFor(item, opts = {}) {
+  // A custom_redirect overrides the computed target for any item type — the
+  // legacy MenuOrganizer used it to point a category/CMS entry somewhere else.
+  if (item.custom_redirect) {
+    return /^https?:\/\//i.test(item.custom_redirect)
+      ? item.custom_redirect
+      : rootLink(item.custom_redirect);
+  }
   switch (item.url_type) {
     case URL_TYPE.CATEGORY: {
       if (!item.category_url_key) return null;
@@ -53,6 +60,29 @@ export function hrefFor(item, opts = {}) {
  * setupSubmenu() reads childNodes[0].textContent for the submenu title, so the
  * anchor must be the first child.
  */
+/** A single promo slot (image, optionally linked) as a standalone element. */
+function buildPromo(src, link, alt, doc) {
+  if (!src) return null;
+  const img = doc.createElement('img');
+  img.src = src;
+  img.alt = alt || '';
+  img.loading = 'lazy';
+  img.className = 'nav-promo-image';
+  const wrap = link ? doc.createElement('a') : doc.createElement('div');
+  if (link) wrap.href = link;
+  wrap.className = 'nav-promo';
+  wrap.append(img);
+  return wrap;
+}
+
+/** All promo elements an item carries (advertisement + second slot, or is_promo image). */
+function promosFor(item, doc) {
+  return [
+    buildPromo(item.advertisement || item.promo_image, item.advertisement_link, item.title, doc),
+    buildPromo(item.advertisement_second, item.advertisement_second_link, item.title, doc),
+  ].filter(Boolean);
+}
+
 export function buildNavList(items, doc = document, opts = {}) {
   const roots = [];
   const childrenOf = new Map();
@@ -77,28 +107,43 @@ export function buildNavList(items, doc = document, opts = {}) {
       const href = hrefFor(item, opts);
       const label = href ? doc.createElement('a') : doc.createElement('span');
       if (href) label.href = href;
-      label.textContent = item.title;
-      if (item.item_class) li.className = item.item_class;
-      li.append(label);
 
-      if (item.advertisement) {
-        // Promo slot. Kept as a plain <img> inside the li so header.css can
-        // target it without the header block needing to know it exists.
-        const img = doc.createElement('img');
-        img.src = item.advertisement;
-        img.alt = item.title;
-        img.loading = 'lazy';
-        img.className = 'nav-promo-image';
-        const wrap = item.advertisement_link ? doc.createElement('a') : doc.createElement('div');
-        if (item.advertisement_link) wrap.href = item.advertisement_link;
-        wrap.className = 'nav-promo';
-        wrap.append(img);
-        li.append(wrap);
+      // Optional leading icon, then the title text.
+      if (item.icon) {
+        const icon = doc.createElement('img');
+        icon.src = item.icon;
+        icon.alt = '';
+        icon.loading = 'lazy';
+        icon.className = 'nav-item-icon';
+        label.append(icon);
       }
+      label.append(doc.createTextNode(item.title));
+
+      const classes = [];
+      if (item.item_class) classes.push(item.item_class);
+      if (item.is_promo) classes.push('nav-item-promo');
+      if (classes.length) li.className = classes.join(' ');
+      li.append(label);
 
       const kids = childrenOf.get(String(item.item_id)) || [];
       const sub = buildList(kids, depth + 1);
-      if (sub) li.append(sub);
+      const promos = promosFor(item, doc);
+
+      if (sub) {
+        // Top-level promos live INSIDE the panel (the sub <ul>) as trailing
+        // cells so the mega-menu can lay them out beside the category columns.
+        // setupSubmenu() clones the whole <ul> into the panel, carrying them in.
+        if (depth === 1 && promos.length) {
+          const promoLi = doc.createElement('li');
+          promoLi.className = 'nav-promo-cell';
+          promos.forEach((p) => promoLi.append(p));
+          sub.append(promoLi);
+        }
+        li.append(sub);
+      } else {
+        // Leaf item: any promo just hangs off the li (rare; kept for parity).
+        promos.forEach((p) => li.append(p));
+      }
 
       ul.append(li);
     });
