@@ -65,6 +65,7 @@ function draftToItem(draft: ItemDraft): Record<string, unknown> {
     categoryId: draft.urlType === 2 ? draft.categoryId : null,
     cmsPageId: draft.urlType === 1 ? draft.cmsPageId : null,
     openType: draft.openType,
+    position: draft.position,
     isActive: draft.isActive,
     identifier: draft.identifier.trim(),
     itemClass: draft.itemClass.trim(),

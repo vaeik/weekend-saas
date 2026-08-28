@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import type { Key } from "react";
 import { useIms } from "@adobe/aio-commerce-lib-admin-ui/web";
 import {
   ActionButton,
@@ -14,22 +15,30 @@ import {
   MenuItem as ActionMenuItem,
   ProgressCircle,
   StatusLight,
+  Tab,
+  TabList,
+  TabPanel,
+  Tabs,
   Text,
   ToastContainer,
   ToastQueue,
 } from "@react-spectrum/s2";
 
 import { createMenuApi } from "#web/lib/menu-api.ts";
-import type { ItemDraft, Menu, MenuItem, MenuNode } from "#web/lib/types.ts";
+import type { FlatRow, ItemDraft, Menu, MenuItem, MenuNode } from "#web/lib/types.ts";
 import { URL_TYPE } from "#web/lib/types.ts";
-import { ItemDialog } from "#web/components/item-dialog.tsx";
+import { flattenTree, forbiddenParentIds, targetLabel } from "#web/lib/tree-util.ts";
+import { ItemGrid } from "#web/components/item-grid.tsx";
+import type { RowActionKey } from "#web/components/item-grid.tsx";
+import { ItemEditPage } from "#web/pages/item-edit-page.tsx";
 
-type DialogState =
-  | { kind: "add" | "edit"; draft: ItemDraft; title: string }
-  | { kind: "delete"; item: MenuItem }
-  | null;
+type EditView = { kind: "edit"; draft: ItemDraft; heading: string; isNew: boolean };
+type View = { kind: "list" } | EditView;
 
-function emptyDraft(menuId: string, parentId: string | null): ItemDraft {
+const byPosition = (a: MenuItem, b: MenuItem) =>
+  a.position - b.position || String(a.id).localeCompare(String(b.id));
+
+function emptyDraft(menuId: string, parentId: string | null, position: number): ItemDraft {
   return {
     menuId,
     parentId,
@@ -39,6 +48,7 @@ function emptyDraft(menuId: string, parentId: string | null): ItemDraft {
     categoryId: null,
     cmsPageId: null,
     openType: 0,
+    position,
     isActive: true,
     identifier: "",
     itemClass: "",
@@ -57,17 +67,12 @@ function toDraft(item: MenuItem): ItemDraft {
     categoryId: item.categoryId ?? null,
     cmsPageId: item.cmsPageId ?? null,
     openType: item.openType ?? 0,
+    position: item.position ?? 0,
     isActive: item.isActive !== false,
     identifier: item.identifier ?? "",
     itemClass: item.itemClass ?? "",
     icon: item.icon ?? "",
   };
-}
-
-function targetLabel(item: MenuItem): string {
-  if (item.urlType === URL_TYPE.CATEGORY) return `Category #${item.categoryId ?? "?"}`;
-  if (item.urlType === URL_TYPE.CMS_PAGE) return `CMS page #${item.cmsPageId ?? "?"}`;
-  return item.url || "—";
 }
 
 export function MainPage() {
@@ -81,10 +86,15 @@ export function MainPage() {
 
   const [menu, setMenu] = useState<Menu | null>(null);
   const [tree, setTree] = useState<MenuNode[]>([]);
+  const [items, setItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [dialog, setDialog] = useState<DialogState>(null);
   const [busy, setBusy] = useState(false);
+  const [tab, setTab] = useState<string>("tree");
+  const [view, setView] = useState<View>({ kind: "list" });
+  const [deleteTarget, setDeleteTarget] = useState<MenuItem | null>(null);
+
+  const rows: FlatRow[] = useMemo(() => flattenTree(tree), [tree]);
 
   const load = useCallback(async () => {
     if (!api) return;
@@ -95,12 +105,14 @@ export function MainPage() {
       if (menus.length === 0) {
         setMenu(null);
         setTree([]);
+        setItems([]);
         return;
       }
       const chosen = menus.find((m) => m.identifier === "main") ?? menus[0];
       setMenu(chosen);
-      const items = await api.listItems(chosen.id);
-      setTree(items.tree ?? []);
+      const res = await api.listItems(chosen.id);
+      setTree(res.tree ?? []);
+      setItems(res.items ?? []);
     } catch (e) {
       setLoadError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -112,13 +124,36 @@ export function MainPage() {
     void load();
   }, [load]);
 
+  const siblingsOf = useCallback(
+    (parentId: string | null) =>
+      items
+        .filter((i) => (i.parentId ?? null) === (parentId ?? null))
+        .sort(byPosition),
+    [items],
+  );
+
+  const openAdd = (parentId: string | null) => {
+    if (!menu) return;
+    const position = siblingsOf(parentId).length;
+    setView({
+      kind: "edit",
+      isNew: true,
+      draft: emptyDraft(menu.id, parentId, position),
+      heading: parentId ? "Add sub-item" : "Add top-level item",
+    });
+  };
+
+  const openEdit = (item: MenuItem) => {
+    setView({ kind: "edit", isNew: false, draft: toDraft(item), heading: `Edit “${item.title}”` });
+  };
+
   const saveItem = async (draft: ItemDraft) => {
     if (!api) return;
     setBusy(true);
     try {
       await api.saveItem(draft);
       ToastQueue.positive(draft.id ? "Item updated" : "Item added", { timeout: 3000 });
-      setDialog(null);
+      setView({ kind: "list" });
       await load();
     } catch (e) {
       ToastQueue.negative(e instanceof Error ? e.message : "Save failed", { timeout: 6000 });
@@ -127,13 +162,14 @@ export function MainPage() {
     }
   };
 
-  const deleteItem = async (item: MenuItem) => {
+  const doDelete = async (item: MenuItem) => {
     if (!api) return;
     setBusy(true);
     try {
       await api.deleteItem(item.id);
       ToastQueue.positive("Item deleted", { timeout: 3000 });
-      setDialog(null);
+      setDeleteTarget(null);
+      setView({ kind: "list" });
       await load();
     } catch (e) {
       ToastQueue.negative(e instanceof Error ? e.message : "Delete failed", { timeout: 6000 });
@@ -142,11 +178,15 @@ export function MainPage() {
     }
   };
 
-  const move = async (item: MenuItem, position: number) => {
+  const move = async (item: MenuItem, dir: "up" | "down") => {
     if (!api) return;
+    const sibs = siblingsOf(item.parentId ?? null);
+    const idx = sibs.findIndex((s) => String(s.id) === String(item.id));
+    const target = dir === "up" ? idx - 1 : idx + 1;
+    if (idx < 0 || target < 0 || target >= sibs.length) return;
     setBusy(true);
     try {
-      await api.reorderItem(item.id, item.parentId, position);
+      await api.reorderItem(item.id, item.parentId ?? null, target);
       await load();
     } catch (e) {
       ToastQueue.negative(e instanceof Error ? e.message : "Reorder failed", { timeout: 6000 });
@@ -155,30 +195,37 @@ export function MainPage() {
     }
   };
 
-  const onRowAction = (node: MenuNode, index: number, siblingCount: number, key: string) => {
+  const dispatchRowAction = (item: MenuItem, key: RowActionKey | string) => {
     switch (key) {
-      case "add-child":
-        setDialog({ kind: "add", draft: emptyDraft(node.menuId, node.id), title: `Add under “${node.title}”` });
-        break;
       case "edit":
-        setDialog({ kind: "edit", draft: toDraft(node), title: `Edit “${node.title}”` });
+        openEdit(item);
+        break;
+      case "add-child":
+        openAdd(item.id);
         break;
       case "up":
-        if (index > 0) void move(node, index - 1);
+        void move(item, "up");
         break;
       case "down":
-        if (index < siblingCount - 1) void move(node, index + 1);
+        void move(item, "down");
         break;
       case "delete":
-        setDialog({ kind: "delete", item: node });
+        setDeleteTarget(item);
         break;
       default:
         break;
     }
   };
 
-  const renderNodes = (nodes: MenuNode[], depth: number) =>
-    nodes.map((node, index) => (
+  const parentOptionsFor = (isNew: boolean, draft: ItemDraft): { id: string; label: string }[] => {
+    const forbidden = !isNew && draft.id ? forbiddenParentIds(items, draft.id) : new Set<string>();
+    return rows
+      .filter((r) => !forbidden.has(String(r.id)))
+      .map((r) => ({ id: String(r.id), label: `${"— ".repeat(r.depth)}${r.title}` }));
+  };
+
+  const renderTree = (nodes: MenuNode[], depth: number) =>
+    nodes.map((node) => (
       <div key={node.id}>
         <div
           style={{
@@ -208,7 +255,7 @@ export function MainPage() {
           <ActionMenu
             aria-label={`Actions for ${node.title}`}
             isQuiet
-            onAction={(key) => onRowAction(node, index, nodes.length, String(key))}
+            onAction={(key: Key) => dispatchRowAction(node, String(key))}
           >
             <ActionMenuItem id="add-child">Add sub-item</ActionMenuItem>
             <ActionMenuItem id="edit">Edit</ActionMenuItem>
@@ -217,11 +264,11 @@ export function MainPage() {
             <ActionMenuItem id="delete">Delete</ActionMenuItem>
           </ActionMenu>
         </div>
-        {node.children.length > 0 && renderNodes(node.children, depth + 1)}
+        {node.children.length > 0 && renderTree(node.children, depth + 1)}
       </div>
     ));
 
-  // ---- render states -------------------------------------------------------
+  // ---- render --------------------------------------------------------------
 
   if (imsError) {
     return (
@@ -235,89 +282,109 @@ export function MainPage() {
   }
 
   return (
-    <main style={{ padding: 24, maxWidth: 960, margin: "0 auto" }}>
+    <main style={{ padding: 24, maxWidth: 1040, margin: "0 auto" }}>
       <ToastContainer />
 
-      <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 8 }}>
-        <div style={{ flex: 1 }}>
-          <Heading>Menu Manager</Heading>
-          {menu && (
-            <Text>
-              <span style={{ opacity: 0.7 }}>
-                {menu.title} · <code>{menu.identifier}</code>
-              </span>
-            </Text>
+      {view.kind === "edit" ? (
+        <ItemEditPage
+          draft={view.draft}
+          heading={view.heading}
+          parentOptions={parentOptionsFor(view.isNew, view.draft)}
+          isSaving={busy}
+          onSave={(d) => void saveItem(d)}
+          onBack={() => setView({ kind: "list" })}
+          onDelete={
+            view.isNew || !view.draft.id
+              ? undefined
+              : () => setDeleteTarget(items.find((i) => i.id === view.draft.id) ?? null)
+          }
+        />
+      ) : (
+        <>
+          <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 8 }}>
+            <div style={{ flex: 1 }}>
+              <Heading>Menu Manager</Heading>
+              {menu && (
+                <Text>
+                  <span style={{ opacity: 0.7 }}>
+                    {menu.title} · <code>{menu.identifier}</code>
+                  </span>
+                </Text>
+              )}
+            </div>
+            <ActionButton onPress={() => void load()} isDisabled={loading || busy}>
+              Refresh
+            </ActionButton>
+            {menu && (
+              <Button variant="accent" onPress={() => openAdd(null)} isDisabled={busy}>
+                Add item
+              </Button>
+            )}
+          </div>
+
+          <Divider size="M" />
+
+          {loading && (
+            <div style={{ display: "flex", justifyContent: "center", padding: 48 }}>
+              <ProgressCircle isIndeterminate aria-label="Loading menu" />
+            </div>
           )}
-        </div>
-        <ActionButton onPress={() => void load()} isDisabled={loading || busy}>
-          Refresh
-        </ActionButton>
-        {menu && (
-          <Button
-            variant="accent"
-            onPress={() =>
-              setDialog({ kind: "add", draft: emptyDraft(menu.id, null), title: "Add top-level item" })
-            }
-            isDisabled={busy}
-          >
-            Add item
-          </Button>
-        )}
-      </div>
 
-      <Divider size="M" />
+          {!loading && loadError && (
+            <InlineAlert variant="negative">
+              <Heading>Failed to load the menu</Heading>
+              <Content>{loadError}</Content>
+            </InlineAlert>
+          )}
 
-      {loading && (
-        <div style={{ display: "flex", justifyContent: "center", padding: 48 }}>
-          <ProgressCircle isIndeterminate aria-label="Loading menu" />
-        </div>
+          {!loading && !loadError && !menu && (
+            <IllustratedMessage>
+              <Heading>No menus yet</Heading>
+              <Content>Seed a menu with the backend before managing it here.</Content>
+            </IllustratedMessage>
+          )}
+
+          {!loading && !loadError && menu && rows.length === 0 && (
+            <IllustratedMessage>
+              <Heading>This menu is empty</Heading>
+              <Content>Use “Add item” to create the first top-level entry.</Content>
+            </IllustratedMessage>
+          )}
+
+          {!loading && !loadError && menu && rows.length > 0 && (
+            <Tabs
+              selectedKey={tab}
+              onSelectionChange={(k: Key) => setTab(String(k))}
+              aria-label="Menu views"
+            >
+              <TabList>
+                <Tab id="tree">Tree</Tab>
+                <Tab id="grid">Grid</Tab>
+              </TabList>
+              <TabPanel id="tree">
+                <div style={{ marginTop: 8 }}>{renderTree(tree, 0)}</div>
+              </TabPanel>
+              <TabPanel id="grid">
+                <div style={{ marginTop: 8 }}>
+                  <ItemGrid rows={rows} onRowAction={(row, key) => dispatchRowAction(row, key)} />
+                </div>
+              </TabPanel>
+            </Tabs>
+          )}
+        </>
       )}
 
-      {!loading && loadError && (
-        <InlineAlert variant="negative">
-          <Heading>Failed to load the menu</Heading>
-          <Content>{loadError}</Content>
-        </InlineAlert>
-      )}
-
-      {!loading && !loadError && !menu && (
-        <IllustratedMessage>
-          <Heading>No menus yet</Heading>
-          <Content>Seed a menu with the backend before managing it here.</Content>
-        </IllustratedMessage>
-      )}
-
-      {!loading && !loadError && menu && tree.length === 0 && (
-        <IllustratedMessage>
-          <Heading>This menu is empty</Heading>
-          <Content>Use “Add item” to create the first top-level entry.</Content>
-        </IllustratedMessage>
-      )}
-
-      {!loading && !loadError && menu && tree.length > 0 && (
-        <div style={{ marginTop: 8 }}>{renderNodes(tree, 0)}</div>
-      )}
-
-      <DialogContainer onDismiss={() => !busy && setDialog(null)}>
-        {dialog && (dialog.kind === "add" || dialog.kind === "edit") && (
-          <ItemDialog
-            initial={dialog.draft}
-            titleText={dialog.title}
-            isSaving={busy}
-            onSave={(d) => void saveItem(d)}
-            onCancel={() => setDialog(null)}
-          />
-        )}
-        {dialog && dialog.kind === "delete" && (
+      <DialogContainer onDismiss={() => !busy && setDeleteTarget(null)}>
+        {deleteTarget && (
           <AlertDialog
             variant="destructive"
             title="Delete item"
             primaryActionLabel="Delete"
             cancelLabel="Cancel"
-            onPrimaryAction={() => void deleteItem(dialog.item)}
-            onCancel={() => setDialog(null)}
+            onPrimaryAction={() => void doDelete(deleteTarget)}
+            onCancel={() => setDeleteTarget(null)}
           >
-            Delete “{dialog.item.title}” and all of its sub-items? This cannot be undone.
+            Delete “{deleteTarget.title}” and all of its sub-items? This cannot be undone.
           </AlertDialog>
         )}
       </DialogContainer>

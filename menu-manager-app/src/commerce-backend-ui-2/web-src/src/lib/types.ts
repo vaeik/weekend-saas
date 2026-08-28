@@ -61,8 +61,14 @@ export interface ItemDraft {
   categoryId: number | null;
   cmsPageId: number | null;
   openType: number;
+  position: number;
   isActive: boolean;
   identifier: string;
   itemClass: string;
   icon: string;
+}
+
+/** A flat menu item annotated with its depth in the tree (for the grid). */
+export interface FlatRow extends MenuItem {
+  depth: number;
 }
