@@ -36,7 +36,8 @@ export interface Menu {
 }
 
 export interface MenuListResult {
-  menus: Menu[];
+  // repo.listMenus() returns the menus under `items`, not `menus`.
+  items: Menu[];
   total?: number;
   page?: number;
   pageSize?: number;

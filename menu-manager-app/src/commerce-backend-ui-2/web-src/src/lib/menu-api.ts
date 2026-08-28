@@ -79,7 +79,7 @@ export function createMenuApi(token: string, orgId: string) {
       const r = await request<MenuListResult>(auth, "menu-list", {
         query: { pageSize: "200" },
       });
-      return r.menus ?? [];
+      return r.items ?? [];
     },
 
     listItems(menuId: string): Promise<ItemListResult> {
