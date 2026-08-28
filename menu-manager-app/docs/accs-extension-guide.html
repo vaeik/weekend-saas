@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Building Extensions for Adobe Commerce as a Cloud Service</title>
+<style>
+  :root{
+    --ink:#131313; --muted:#5b5b5b; --line:#e3e3e3; --accent:#d1410c;
+    --accent-soft:#fbeee9; --code-bg:#f6f7f9; --ok:#1f7a3d;
+  }
+  *{box-sizing:border-box}
+  html{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);font-size:11pt;line-height:1.5}
+  body{margin:0}
+  @page{size:A4;margin:18mm 16mm}
+  h1,h2,h3{line-height:1.2;margin:0 0 .35em}
+  h1{font-size:26pt;letter-spacing:-.5px}
+  h2{font-size:16pt;margin-top:1.4em;padding-bottom:.25em;border-bottom:2px solid var(--accent)}
+  h3{font-size:12.5pt;margin-top:1.1em;color:#000}
+  p{margin:.5em 0}
+  a{color:var(--accent);text-decoration:none}
+  code{font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-size:9.3pt;background:var(--code-bg);padding:1px 4px;border-radius:3px}
+  pre{background:var(--code-bg);border:1px solid var(--line);border-radius:6px;padding:10px 12px;font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-size:8.9pt;line-height:1.45;overflow:auto;white-space:pre-wrap;word-break:break-word}
+  pre code{background:none;padding:0}
+  table{border-collapse:collapse;width:100%;margin:.6em 0;font-size:9.6pt}
+  th,td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top}
+  th{background:#faf7f5;font-weight:700}
+  ul,ol{margin:.4em 0 .6em;padding-left:1.15em}
+  li{margin:.22em 0}
+  .muted{color:var(--muted)}
+  .lead{font-size:12pt;color:#333}
+  .tag{display:inline-block;font-size:8pt;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);border-radius:20px;padding:3px 10px}
+  .callout{border:1px solid var(--line);border-left:4px solid var(--accent);background:#fdfaf8;border-radius:6px;padding:10px 14px;margin:.7em 0}
+  .callout .h{font-weight:700;color:var(--accent);font-size:9.5pt;text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .card{border:1px solid var(--line);border-radius:6px;padding:10px 12px}
+  .card h3{margin-top:0}
+  .cover{padding:36mm 0 0}
+  .cover .kicker{letter-spacing:2px;text-transform:uppercase;color:var(--accent);font-weight:700;font-size:10pt}
+  .cover h1{font-size:34pt;margin:.25em 0 .1em}
+  .cover .sub{font-size:14pt;color:#333;max-width:34em}
+  .cover .meta{margin-top:26mm;color:var(--muted);font-size:9.5pt;border-top:1px solid var(--line);padding-top:10px}
+  .section{page-break-before:always}
+  .avoid{page-break-inside:avoid}
+  .pill-ok{color:var(--ok);font-weight:700}
+  .small{font-size:9pt}
+  .num{font-variant-numeric:tabular-nums}
+  footer{margin-top:2em;border-top:1px solid var(--line);padding-top:8px;color:var(--muted);font-size:8.5pt}
+  .toc td{border:none;padding:3px 0}
+  .toc .n{color:var(--accent);font-weight:700;width:26px}
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<section class="cover">
+  <div class="kicker">Technical Guide &amp; Build-Time Estimate</div>
+  <h1>Building Extensions for Adobe&nbsp;Commerce as a Cloud&nbsp;Service</h1>
+  <p class="sub">How to extend ACCS with Adobe App Builder and the Admin UI SDK — the architecture, a step-by-step build, the undocumented traps that cost real time, and an estimate of the time a similar module takes to build.</p>
+  <div class="meta">
+    Prepared for Weekend Shoes · EVO-217 · Based on the production build of the <strong>Menu Manager</strong> extension<br>
+    Adobe Commerce as a Cloud Service (ACCS) · Adobe App Builder · Admin UI SDK v2 · API Mesh · Edge Delivery Services
+  </div>
+</section>
+
+<!-- TOC -->
+<section class="section">
+  <h2>Contents</h2>
+  <table class="toc">
+    <tr><td class="n">1</td><td>Why ACCS extensions are different</td></tr>
+    <tr><td class="n">2</td><td>The architecture at a glance</td></tr>
+    <tr><td class="n">3</td><td>Prerequisites</td></tr>
+    <tr><td class="n">4</td><td>Step-by-step build</td></tr>
+    <tr><td class="n">5</td><td>Hard-won platform gotchas</td></tr>
+    <tr><td class="n">6</td><td>Testing &amp; deployment</td></tr>
+    <tr><td class="n">7</td><td>Time needed for a similar module</td></tr>
+    <tr><td class="n">8</td><td>Command reference</td></tr>
+  </table>
+
+  <div class="callout avoid">
+    <div class="h">The one-sentence version</div>
+    On ACCS the Commerce core is locked — no PHP modules, plugins, observers or custom tables — so an “extension” is an <strong>out-of-process Adobe App Builder application</strong> that adds admin screens through the <strong>Admin UI SDK</strong>, stores its own data in App Builder’s database, and reaches the storefront through <strong>API&nbsp;Mesh</strong>.
+  </div>
+</section>
+
+<!-- 1 -->
+<section class="section">
+  <h2>1 · Why ACCS extensions are different</h2>
+  <p class="lead">Adobe Commerce as a Cloud Service (ACCS) is SaaS. Unlike Adobe Commerce on-prem or on PaaS/Cloud, you do <strong>not</strong> get to deploy PHP into the Commerce runtime.</p>
+  <div class="grid2">
+    <div class="card avoid">
+      <h3>What you cannot do</h3>
+      <ul>
+        <li>No custom PHP modules, plugins or preferences</li>
+        <li>No observers / <code>events.xml</code> in-process</li>
+        <li>No custom MySQL tables or <code>db_schema.xml</code></li>
+        <li>No <code>adminhtml</code> controllers, UI-component grids or layout XML</li>
+        <li>No SSH / filesystem access to the core</li>
+      </ul>
+    </div>
+    <div class="card avoid">
+      <h3>What you do instead</h3>
+      <ul>
+        <li>Build an <strong>Adobe App Builder</strong> app (serverless, out of process)</li>
+        <li>Add admin screens via the <strong>Admin UI SDK</strong> (React + Spectrum)</li>
+        <li>Persist data in <strong>App Builder Database</strong> (DocumentDB) + <strong>State</strong></li>
+        <li>Talk to Commerce via <strong>REST/GraphQL</strong> and <strong>Adobe I/O Events</strong></li>
+        <li>Feed the storefront (Edge Delivery) through <strong>API Mesh</strong></li>
+      </ul>
+    </div>
+  </div>
+  <p>The mental shift: an extension is no longer code that runs <em>inside</em> Commerce — it is a companion application that runs <em>beside</em> it and integrates over well-defined seams (SDK, events, APIs, mesh). This is more work up front, but it decouples your customisation from Adobe’s upgrade cadence.</p>
+
+  <div class="callout avoid">
+    <div class="h">Reference case — Menu Manager</div>
+    The legacy ScandiPWA <em>MenuOrganizer</em> (80 files, 3 MySQL tables, 13 adminhtml controllers, 2 observers, 1 GraphQL query) was rebuilt for ACCS as a single App Builder app: a document database instead of tables, ~13 Runtime actions instead of controllers, an Admin UI SDK React SPA instead of adminhtml grids/forms, and event-driven reconciliation instead of observers.
+  </div>
+</section>
+
+<!-- 2 -->
+<section class="section">
+  <h2>2 · The architecture at a glance</h2>
+  <table class="avoid">
+    <tr><th>Layer</th><th>Technology</th><th>Role</th></tr>
+    <tr><td>Admin UI</td><td>Admin UI SDK v2 · React 19 · React Spectrum S2</td><td>Screens rendered inside the Commerce Admin (tree, grid, edit pages, pickers).</td></tr>
+    <tr><td>App lifecycle</td><td><code>commerce/extensibility/1</code> (App Management)</td><td>Associate + Install the app into a specific instance; registers the admin menu.</td></tr>
+    <tr><td>Business logic</td><td>Adobe I/O Runtime actions (Node.js)</td><td>CRUD, validation, auth. One action ≈ one endpoint.</td></tr>
+    <tr><td>Data</td><td>App Builder Database (DocumentDB) + State</td><td>System of record for the extension’s own data; State as a cache.</td></tr>
+    <tr><td>Commerce integration</td><td>REST / GraphQL · Adobe I/O Events</td><td>Read catalog/CMS; react to catalog changes (reconciliation).</td></tr>
+    <tr><td>Storefront</td><td>API Mesh → Edge Delivery Services blocks</td><td>Expose a stable GraphQL field the storefront consumes.</td></tr>
+    <tr><td>Auth</td><td>IMS · <code>require-adobe-auth</code> · S2S credentials</td><td>Per-user tokens for admin calls; service tokens for background work.</td></tr>
+  </table>
+
+  <h3>Two contracts you will hear about</h3>
+  <ul>
+    <li><strong>Admin UI SDK v1</strong> — the older <code>commerce/backend-ui/1</code> + a <code>registration</code> action. Deprecated for GA ACCS.</li>
+    <li><strong>Admin UI SDK v2</strong> — <code>commerce/backend-ui/2</code> (a React SPA) plus <code>commerce/extensibility/1</code> (App Management). <strong>GA ACCS only accepts v2.</strong> Build v2 from the start.</li>
+  </ul>
+</section>
+
+<!-- 3 -->
+<section class="section">
+  <h2>3 · Prerequisites</h2>
+  <ul>
+    <li>An <strong>ACCS instance</strong> (provisioned by Adobe) and an Adobe org that owns it. Note the region, instance id, Admin URL and GraphQL endpoint.</li>
+    <li><strong>Adobe Developer Console</strong> project + workspaces (Stage / Production) with App Builder and required APIs (I/O Management, Events, App Builder Database, IMS S2S).</li>
+    <li><strong>aio CLI</strong> (<code>@adobe/aio-cli</code>) and Node.js ≥ 22.22.</li>
+    <li>An <strong>OAuth Server-to-Server</strong> credential (for the app to mint its own service token).</li>
+    <li>For the storefront path: an <strong>Edge Delivery</strong> site and an <strong>API Mesh</strong>.</li>
+  </ul>
+  <div class="callout avoid">
+    <div class="h">Governance</div>
+    The app must live in the <strong>same Adobe org that owns the ACCS tenant</strong>, or App Management will never surface the extension in that instance’s Admin. Distribution stays first-party (Associate → Install to <em>this</em> instance); nothing is published to a public marketplace.
+  </div>
+</section>
+
+<!-- 4 -->
+<section class="section">
+  <h2>4 · Step-by-step build</h2>
+
+  <h3>4.1 · Scaffold the App Builder app</h3>
+  <p>Initialise the project and select your Console workspace. Provision the database region.</p>
+  <pre><code>aio login
+aio app init            # or clone a boilerplate; pick org / project / workspace
+aio app use -g          # bind the workspace
+aio app db provision --region emea</code></pre>
+
+  <h3>4.2 · Model the data (system of record)</h3>
+  <p>Put the schema and all <em>pure</em> logic (tree building, ordering, validation) in dependency-free modules so they can be unit-tested without Adobe access. The document database is the source of truth; State is only a cache (it caps TTL and can skip/duplicate keys mid-iteration, so never treat it as durable).</p>
+
+  <h3>4.3 · Write Runtime actions (the API)</h3>
+  <p>One action per operation (<code>menu-list</code>, <code>item-save</code>, …). Secure admin actions with <code>require-adobe-auth: true</code> and declare every credential the action needs as an <strong>input</strong> — a deployed action cannot read <code>.env</code> through <code>process.env</code>.</p>
+  <pre><code># ext.config.yaml (per action)
+item-save:
+  function: actions/item/save.js
+  web: 'yes'
+  runtime: nodejs:22
+  inputs:
+    IMS_OAUTH_S2S_CLIENT_ID: $IMS_OAUTH_S2S_CLIENT_ID
+    IMS_OAUTH_S2S_CLIENT_SECRET: $IMS_OAUTH_S2S_CLIENT_SECRET
+    IMS_OAUTH_S2S_ORG_ID: $IMS_OAUTH_S2S_ORG_ID
+    IMS_OAUTH_S2S_SCOPES: $IMS_OAUTH_S2S_SCOPES
+    AIO_DB_REGION: $AIO_DB_REGION
+  annotations: { require-adobe-auth: true, final: true }</code></pre>
+
+  <h3>4.4 · Build the Admin UI (SDK v2)</h3>
+  <p>Declare the app in <code>app.commerce.config.ts</code> and generate the two extension points. The admin screen is a React 19 + Spectrum S2 single-page app mounted with <code>createExtensionApp</code>.</p>
+  <pre><code>// app.commerce.config.ts
+export default defineConfig({
+  metadata: { id: 'scandiwebmenumanager', displayName: 'Scandiweb Menu Manager', version: '1.0.0' },
+  adminUi: { menu: { id: 'ScandiwebMenuManager::menu_manager', label: 'Menu Manager', pageTitle: 'Menu Manager' } }
+});</code></pre>
+  <p>The SPA calls your own actions with the admin’s IMS token from <code>useIms()</code>. Two headers are required by <code>require-adobe-auth</code>:</p>
+  <pre><code>headers: {
+  Authorization: `Bearer ${imsToken}`,
+  'x-gw-ims-org-id': imsOrgId,     // both, or the gateway rejects the call
+}</code></pre>
+
+  <h3>4.5 · Install it into the Admin</h3>
+  <p>Deploy, then in the Commerce Admin go to <strong>Apps → App Management → Associate App</strong> (pick project + workspace) → <strong>Install</strong>. Both steps (Enable Admin UI SDK + Register Extension) must go green; the menu then appears in the Admin nav.</p>
+
+  <h3>4.6 · Wire the storefront (optional)</h3>
+  <p>Expose a read action, put a stable GraphQL field in front of it with <strong>API Mesh</strong> (a programmatic <code>fetch</code> resolver works; keep the shared secret in the mesh, never forwarded from the caller), and consume that field from an Edge Delivery block. Keep the payload <strong>flat</strong> — Mesh caps query depth — and rebuild any tree client-side.</p>
+
+  <h3>4.7 · React to Commerce changes (optional)</h3>
+  <p>Subscribe to Adobe I/O Events (e.g. category saved/deleted) and reconcile in an async action. Treat events as hostile: at-least-once, out of order, retried; dedupe on event id in State and return 5xx to trigger Adobe’s retry.</p>
+</section>
+
+<!-- 5 -->
+<section class="section">
+  <h2>5 · Hard-won platform gotchas</h2>
+  <p class="muted small">Each of these cost real debugging time on the Menu Manager build and is not documented anywhere obvious.</p>
+  <table class="avoid">
+    <tr><th style="width:34%">Trap</th><th>Fix</th></tr>
+    <tr><td>Deployed action returns 500 but works locally</td><td>It can’t see <code>.env</code>. Declare every credential as an action <code>input</code>.</td></tr>
+    <tr><td>The v2 SPA renders a blank page / <code>jsxDEV is not a function</code></td><td>aio builds Parcel in <em>development</em> mode (emits <code>jsxDEV</code>) while <code>NODE_ENV=production</code> pulls production React (no <code>jsxDEV</code>). Deploy with <code>NODE_ENV=development aio app deploy --force-build</code> so both halves agree.</td></tr>
+    <tr><td><code>missing x-gw-ims-org-id header</code></td><td>Admin calls need <em>both</em> the Bearer token <em>and</em> <code>x-gw-ims-org-id</code> (from <code>useIms()</code>).</td></tr>
+    <tr><td><code>Module Runtime: Needs to be within an iframe!</code> + spinner</td><td>The Admin UI SDK page only runs inside the Admin’s own iframe/shell context — not a standalone URL and not the generic <code>custom-apps</code> dev harness (which supplies a token but not the org id).</td></tr>
+    <tr><td>DocumentDB <code>findOne</code> throws “Document not found”</td><td>It throws where Mongo returns null. Normalise to a <code>findOneOrNull</code> helper — and keep your test fake throwing too, so it can’t hide the bug.</td></tr>
+    <tr><td><code>aio app db provision</code> then <code>deploy</code> fails on “must have <code>packages</code>”</td><td>Provision writes a <code>runtimeManifest.database</code> block without <code>packages</code>. Add an empty <code>packages: {}</code>.</td></tr>
+    <tr><td>Admin UI SDK v2 has no localhost dev loop for ACCS</td><td>Every iteration is a deploy (~35 s). Budget for it; verify in the real Admin, not a local harness.</td></tr>
+    <tr><td>React Spectrum S2 styling breaks under a plain bundler</td><td>Build the SPA inside the real <code>web-src</code> scaffold (Adobe’s pipeline), not a side project.</td></tr>
+    <tr><td>Storefront doesn’t reflect an edit immediately</td><td>API Mesh caches GET responses by query key; edits appear after the cache TTL. Verify with the live action if you need certainty.</td></tr>
+  </table>
+</section>
+
+<!-- 6 -->
+<section class="section">
+  <h2>6 · Testing &amp; deployment</h2>
+  <ul>
+    <li><strong>Unit tests</strong> on the pure modules (schema, tree logic) — fast, no Adobe access. These cannot catch platform divergence.</li>
+    <li><strong>Smoke tests</strong> against a real workspace/database — the only thing that catches DocumentDB/State behaviour. Run them before calling any change done.</li>
+    <li><strong>Storefront tests</strong> (jsdom) on the Edge Delivery block’s tree-rebuild logic.</li>
+    <li><strong>Deploy:</strong> <code>NODE_ENV=development aio app deploy --force-build</code>; re-create DB indexes in a post-deploy hook.</li>
+    <li><strong>Verify in context:</strong> open the extension through the real Commerce Admin (Apps → your app), not a direct URL.</li>
+  </ul>
+</section>
+
+<!-- 7 -->
+<section class="section">
+  <h2>7 · Time needed for a similar module</h2>
+  <p class="lead">Forward estimate of active AI build time for another Menu-Manager-class extension — admin CRUD UI + storefront rendering + optional event sync — now that the platform is known.</p>
+  <p>Each phase already includes a <strong>50% buffer</strong>. Assumes the ACCS instance, Adobe Console workspace and API Mesh already exist (no re-provisioning) and a comparable scope.</p>
+
+  <table class="avoid">
+    <tr><th>Phase</th><th>Active build time<br><span class="small muted">(incl. 50% buffer)</span></th></tr>
+    <tr><td>Data layer — schema, pure logic, unit tests</td><td class="num">0.75–1.5 h</td></tr>
+    <tr><td>Backend CRUD actions + auth (require-adobe-auth, IMS)</td><td class="num">0.75–1.5 h</td></tr>
+    <tr><td>Storefront read path + API Mesh</td><td class="num">~0.75 h</td></tr>
+    <tr><td>Admin UI SDK v2 SPA — tree, grid, edit page, pickers</td><td class="num">2.25–3 h</td></tr>
+    <tr><td>App Management install + in-Admin verification</td><td class="num">~0.75 h</td></tr>
+    <tr><td>Storefront rendering (Edge Delivery block / mega-menu)</td><td class="num">0.75–1.5 h</td></tr>
+    <tr><td>Event-driven catalog sync (optional)</td><td class="num">~0.75 h</td></tr>
+    <tr><td>Tests, verification, docs</td><td class="num">~0.75 h</td></tr>
+    <tr><th>Total active build</th><th class="num">≈ 7.5–10.5 h (~1–1.5 working days)</th></tr>
+  </table>
+
+  <div class="grid2">
+    <div class="card avoid">
+      <h3>Assumptions</h3>
+      <ul>
+        <li>Platform already known — the §5 traps don’t need re-discovering</li>
+        <li>ACCS instance + Console workspace + API Mesh already provisioned</li>
+        <li>Scope comparable to Menu Manager (admin CRUD + storefront)</li>
+        <li>50% buffer already baked into every phase above</li>
+      </ul>
+    </div>
+    <div class="card avoid">
+      <h3>What sets the clock</h3>
+      <ul>
+        <li>The deploy loop (~35 s each; no local admin dev loop)</li>
+        <li>In-Admin verification of each screen</li>
+        <li>API Mesh cache TTL when checking the storefront</li>
+        <li>Coding itself is a small share of the total</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout avoid">
+    <div class="h">Bottom line</div>
+    With the platform known and the instance already provisioned, a similar module is <strong>about one to one-and-a-half working days</strong> of active build (≈ 7.5–10.5 hours, 50% buffer included). The one-time costs — provisioning and platform discovery — are already paid and do not recur; what remains is set by the deploy cadence and in-Admin verification, not by typing speed.
+  </div>
+</section>
+
+<!-- 8 -->
+<section class="section">
+  <h2>8 · Command reference</h2>
+  <pre><code># Setup
+aio login
+aio app use -g
+aio app db provision --region emea
+
+# Build &amp; deploy (v2 SPA needs NODE_ENV=development — see gotcha #2)
+NODE_ENV=development aio app deploy --force-build
+
+# Install into the Admin
+Commerce Admin → Apps → App Management → Associate App → Install
+
+# Verify the storefront read path (shared-secret protected)
+curl -H "x-mm-secret: $SECRET" \
+  "https://<ns>.adobeioruntime.net/api/v1/web/menu-manager/storefront-menu-get?identifier=main"
+
+# Tests
+npm test                 # pure unit tests, no Adobe access
+npm run smoke            # assertions vs the REAL database</code></pre>
+
+  <footer>
+    Building Extensions for Adobe Commerce as a Cloud Service — prepared from the Menu Manager (EVO-217) production build.
+    Adobe, Adobe Commerce, App Builder, API Mesh and Edge Delivery Services are trademarks of Adobe. This document is an engineering guide, not official Adobe documentation.
+  </footer>
+</section>
+
+</body>
+</html>
