@@ -142,15 +142,21 @@ runtimeManifest:
             final: true
         # Read-only catalog lookups for the V2 admin pickers (categories, and CMS
         # pages once a source exists). require-adobe-auth like the other admin
-        # actions. No DB, so no IMS_OAUTH_S2S_* — only the demo-catalog COMMERCE_*.
+        # actions. No DB, so no IMS_OAUTH_S2S_*.
+        #
+        # Source = THIS ACCS instance's own Catalog Service GraphQL (not the demo
+        # catalog). It answers `categories(ids:[...])` anonymously with just the
+        # store-view header — no x-api-key. The picker shows whatever categories
+        # exist in the sandbox; it is empty until categories are created in the
+        # Commerce Admin (Catalog -> Categories), at which point they appear.
         catalog-list:
           function: actions/catalog/list.js
           web: 'yes'
           runtime: nodejs:22
           inputs:
             LOG_LEVEL: debug
-            COMMERCE_ENDPOINT: 'https://www.aemshop.net/cs-graphql'
-            COMMERCE_HEADERS: '{"Store":"default","Magento-Store-Code":"main_website_store","Magento-Store-View-Code":"default","Magento-Website-Code":"base","x-api-key":"4dfa19c9fe6f4cccade55cc5b3da94f7","Magento-Environment-Id":"f38a0de0-764b-41fa-bd2c-5bc2f3c7b39a"}'
+            COMMERCE_ENDPOINT: 'https://na1-sandbox.api.commerce.adobe.com/EGD3J2kAQ3pgLrtoWaoCJR/graphql'
+            COMMERCE_HEADERS: '{"Magento-Store-View-Code":"default","Magento-Store-Code":"main_website_store","Magento-Website-Code":"base"}'
           annotations:
             require-adobe-auth: true
             final: true
