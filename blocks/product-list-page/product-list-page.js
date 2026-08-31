@@ -162,11 +162,16 @@ export default async function decorate(block) {
           anchorWrapper.href = getProductLink(product.urlKey, product.sku);
           anchorWrapper.setAttribute('aria-label', product.name || product.sku);
 
+          // The dropin builds a responsive srcset from imageProps; if the
+          // dimensions there are not numbers it emits `height=NaN`, and the
+          // resizer answers that with a blank 1x1 JPEG. Give both the props and
+          // the params real numbers.
+          const size = imageSizeParams(defaultImageProps);
           tryRenderAemAssetsImage(ctx, {
             alias: product.sku,
-            imageProps: defaultImageProps,
+            imageProps: { ...defaultImageProps, ...size },
             wrapper: anchorWrapper,
-            params: imageSizeParams(defaultImageProps),
+            params: size,
           });
         },
         ProductActions: (ctx) => {
