@@ -230,6 +230,47 @@ async function loadEager(doc) {
  * Loads everything that doesn't need to be delayed.
  * @param {Element} doc The container element
  */
+
+/**
+ * Strip `height=NaN` from Commerce image URLs.
+ *
+ * The storefront dropin builds a responsive srcset and pairs every width with a
+ * height it cannot compute, producing `?width=285&height=NaN`. The Commerce
+ * image resizer answers that with a blank 1x1, 268-byte JPEG, so every product
+ * renders as a flat colour block. Width-only returns the correct image, so the
+ * safe repair is to drop the broken parameter.
+ *
+ * This is a workaround for an upstream bug in the dropin: the srcset is built
+ * inside the component, so it cannot be corrected from the block's props.
+ * Remove this once the dropin emits a valid height.
+ */
+function repairImageDimensions(root = document) {
+  const clean = (v) => (v && v.includes('height=NaN')
+    ? v.replace(/&(?:amp;)?height=NaN/g, '').replace(/\?height=NaN&/g, '?')
+    : null);
+
+  const fix = (img) => {
+    const src = clean(img.getAttribute('src'));
+    if (src) img.setAttribute('src', src);
+    const srcset = clean(img.getAttribute('srcset'));
+    if (srcset) img.setAttribute('srcset', srcset);
+  };
+
+  root.querySelectorAll('img[src*="height=NaN"], img[srcset*="height=NaN"]').forEach(fix);
+
+  new MutationObserver((records) => {
+    records.forEach(({ target, addedNodes }) => {
+      if (target instanceof HTMLImageElement) fix(target);
+      addedNodes?.forEach((n) => {
+        if (n instanceof HTMLImageElement) fix(n);
+        else if (n instanceof HTMLElement) n.querySelectorAll?.('img').forEach(fix);
+      });
+    });
+  }).observe(root.body || root, {
+    subtree: true, childList: true, attributes: true, attributeFilter: ['src', 'srcset'],
+  });
+}
+
 async function loadLazy(doc) {
   loadHeader(doc.querySelector('header'));
 
@@ -243,6 +284,8 @@ async function loadLazy(doc) {
   loadFooter(doc.querySelector('footer'));
 
   loadCommerceLazy();
+
+  repairImageDimensions(doc);
 
   loadCSS(`${window.hlx.codeBasePath}/styles/lazy-styles.css`);
   loadFonts();
