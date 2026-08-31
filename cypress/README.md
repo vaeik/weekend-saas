@@ -61,11 +61,11 @@ As of 8/15/2025, these entries were added manually:
   "og:type": "product",
   "og:title": "Cypress configurable product latest",
   "og:description": "Cypress configurable product latest",
-  "og:url": "https://www.aemshop.net/products/cypress-configurable-product-latest/cypress456",
-  "og:image": "https://www.aemshop.net/media/catalog/product/adobestoredata/CYPRESS456.jpg",
-  "og:image:secure_url": "https://www.aemshop.net/media/catalog/product/adobestoredata/CYPRESS456.jpg",
+  "og:url": "https://main--weekend-saas--vaeik.aem.live/products/cypress-configurable-product-latest/cypress456",
+  "og:image": "https://main--weekend-saas--vaeik.aem.live/media/catalog/product/adobestoredata/CYPRESS456.jpg",
+  "og:image:secure_url": "https://main--weekend-saas--vaeik.aem.live/media/catalog/product/adobestoredata/CYPRESS456.jpg",
   "last-modified": "2025-01-27T12:00:00.000Z",
-  "json-ld": "{\"@context\":\"http://schema.org\",\"@type\":\"Product\",\"name\":\"Cypress configurable product latest\",\"description\":\"Cypress configurable product latest\",\"image\":\"https://www.aemshop.net/media/catalog/product/adobestoredata/CYPRESS456.jpg\",\"offers\":[{\"@type\":\"Offer\",\"price\":99.99,\"priceCurrency\":\"USD\",\"availability\":\"http://schema.org/InStock\"}],\"productID\":\"cypress456\",\"sku\":\"CYPRESS456\",\"url\":\"/products/cypress-configurable-product-latest/cypress456\",\"@id\":\"/products/cypress-configurable-product-latest/cypress456\"}"
+  "json-ld": "{\"@context\":\"http://schema.org\",\"@type\":\"Product\",\"name\":\"Cypress configurable product latest\",\"description\":\"Cypress configurable product latest\",\"image\":\"https://main--weekend-saas--vaeik.aem.live/media/catalog/product/adobestoredata/CYPRESS456.jpg\",\"offers\":[{\"@type\":\"Offer\",\"price\":99.99,\"priceCurrency\":\"USD\",\"availability\":\"http://schema.org/InStock\"}],\"productID\":\"cypress456\",\"sku\":\"CYPRESS456\",\"url\":\"/products/cypress-configurable-product-latest/cypress456\",\"@id\":\"/products/cypress-configurable-product-latest/cypress456\"}"
 },
 {
   "URL": "/products/gift-packaging/adb102",
@@ -76,11 +76,11 @@ As of 8/15/2025, these entries were added manually:
   "og:type": "product",
   "og:title": "Gift packaging",
   "og:description": "Gift packaging",
-  "og:url": "https://www.aemshop.net/products/gift-packaging/adb102",
-  "og:image": "https://www.aemshop.net/media/catalog/product/adobestoredata/ADB102.jpg",
-  "og:image:secure_url": "https://www.aemshop.net/media/catalog/product/adobestoredata/ADB102.jpg",
+  "og:url": "https://main--weekend-saas--vaeik.aem.live/products/gift-packaging/adb102",
+  "og:image": "https://main--weekend-saas--vaeik.aem.live/media/catalog/product/adobestoredata/ADB102.jpg",
+  "og:image:secure_url": "https://main--weekend-saas--vaeik.aem.live/media/catalog/product/adobestoredata/ADB102.jpg",
   "last-modified": "2025-01-27T12:00:00.000Z",
-  "json-ld": "{\"@context\":\"http://schema.org\",\"@type\":\"Product\",\"name\":\"Gift packaging\",\"description\":\"Gift packaging\",\"image\":\"https://www.aemshop.net/media/catalog/product/adobestoredata/ADB102.jpg\",\"offers\":[{\"@type\":\"Offer\",\"price\":19.99,\"priceCurrency\":\"USD\",\"availability\":\"http://schema.org/InStock\"}],\"productID\":\"adb102\",\"sku\":\"ADB102\",\"url\":\"/products/gift-packaging/adb102\",\"@id\":\"/products/gift-packaging/adb102\"}"
+  "json-ld": "{\"@context\":\"http://schema.org\",\"@type\":\"Product\",\"name\":\"Gift packaging\",\"description\":\"Gift packaging\",\"image\":\"https://main--weekend-saas--vaeik.aem.live/media/catalog/product/adobestoredata/ADB102.jpg\",\"offers\":[{\"@type\":\"Offer\",\"price\":19.99,\"priceCurrency\":\"USD\",\"availability\":\"http://schema.org/InStock\"}],\"productID\":\"adb102\",\"sku\":\"ADB102\",\"url\":\"/products/gift-packaging/adb102\",\"@id\":\"/products/gift-packaging/adb102\"}"
 },
 {
   "URL": "/products/virtual-product/virtual123",

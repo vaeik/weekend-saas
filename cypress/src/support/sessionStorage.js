@@ -10,7 +10,7 @@
 //   const config = {
 //     "public": {
 //       "default": {
-//         "commerce-core-endpoint": "https://mcstaging.aemshop.net/graphql",
+//         "commerce-core-endpoint": "https://na1-sandbox.api.commerce.adobe.com/EGD3J2kAQ3pgLrtoWaoCJR/graphql",
 //         "commerce-endpoint": "https://catalog-service-sandbox.adobe.io/graphql",
 //         "headers": {
 //           "all": {
@@ -29,7 +29,7 @@
 //           "environment": "Production",
 //           "store-id": 1,
 //           "store-name": "Main Website Store",
-//           "store-url": "https://www.aemshop.net",
+//           "store-url": "https://main--weekend-saas--vaeik.aem.live",
 //           "store-view-id": 1,
 //           "store-view-name": "Default Store View",
 //           "website-id": 1,

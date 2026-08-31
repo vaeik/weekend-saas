@@ -3,7 +3,7 @@ import fs from 'fs';
 import he from 'he';
 import productSearchQuery from './queries/products.graphql.js';
 import { variantsFragment } from './queries/variants.graphql.js';
-const basePath = 'https://www.aemshop.net';
+const basePath = 'https://main--weekend-saas--vaeik.aem.live';
 const configFile = `${basePath}/config.json`;
 
 /**

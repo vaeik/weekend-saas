@@ -62,7 +62,7 @@ A JSON file with the same product data structured in the expected format:
         "og:type": "product",
         "og:title": "Product Name",
         "og:description": "Product Description",
-        "og:url": "https://www.aemshop.net/products/{urlKey}/{sku}",
+        "og:url": "https://main--weekend-saas--vaeik.aem.live/products/{urlKey}/{sku}",
         "og:image": "image_url",
         "og:image:secure_url": "image_url",
         "last-modified": "timestamp",

@@ -86,7 +86,7 @@ export const expectAemAssetsImage = (src, { protocol, environment, urn, format, 
  */
 export const expectDefaultImage = (src, { protocol, format, imageName, path, ...params }) => {
   const protocolMatch = src.match(/^(https?:)?\/\//);
-  const pathMatch = src.match(/aemshop\.net\/(.+?)\/[^/]+\.[^/]+(?:\?|$)/);
+  const pathMatch = src.match(/commerce\.adobe\.com\/(.+?)\/[^/]+\.[^/]+(?:\?|$)/);
   const formatMatch = src.match(/\.([^.?]+)(?:\?|$)/);
   const imageNameMatch = formatMatch ? 
     src.match(new RegExp(`/([^/]+)\\.${formatMatch[1]}(?:\\?|$)`)) : null;
@@ -123,7 +123,7 @@ export const expectDefaultImage = (src, { protocol, format, imageName, path, ...
   }
 
   // This is the URL we expect.
-  const url = new URL(`${resolvedProtocol}www.aemshop.net/${resolvedPath}/${resolvedImageName}.${resolvedFormat}`);
+  const url = new URL(`${resolvedProtocol}na1-sandbox.api.commerce.adobe.com/${resolvedPath}/${resolvedImageName}.${resolvedFormat}`);
   Object.entries(params).forEach(([key, value]) => {
     url.searchParams.set(key, value);
   });

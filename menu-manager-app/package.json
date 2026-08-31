@@ -18,11 +18,13 @@
     "smoke": "node scripts/smoke.js",
     "seed": "node scripts/seed-from-catalog.js",
     "seed:weekend": "node scripts/seed-weekend-menu.js",
-    "seed:weekend-demo": "node scripts/seed-weekend-demo.js",
     "menu": "node scripts/menu.js",
     "admin": "node scripts/admin-server.js",
     "typecheck:web-src": "tsc --noEmit -p src/commerce-backend-ui-2/web-src/tsconfig.json",
-    "typecheck": "npm run typecheck:web-src"
+    "typecheck": "npm run typecheck:web-src",
+    "seed:products": "python3 scripts/seed-accs-products.py",
+    "seed:variants": "python3 scripts/seed-accs-variants.py",
+    "menu:rebuild": "node scripts/rebuild-menu-from-catalog.js"
   },
   "dependencies": {
     "@adobe/aio-commerce-lib-app": "^1.10.1",

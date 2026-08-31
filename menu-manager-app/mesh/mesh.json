@@ -5,7 +5,7 @@
         "name": "Commerce",
         "handler": {
           "graphql": {
-            "endpoint": "https://www.aemshop.net/graphql"
+            "endpoint": "https://na1-sandbox.api.commerce.adobe.com/EGD3J2kAQ3pgLrtoWaoCJR/graphql"
           }
         }
       }

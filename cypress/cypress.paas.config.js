@@ -11,8 +11,8 @@ module.exports = defineConfig({
   ...baseConfig,
   env: {
     ...baseConfig.env,
-    graphqlEndPoint: "https://mcstaging.aemshop.net/graphql",
-    API_ENDPOINT: "https://mcstaging.aemshop.net",
+    graphqlEndPoint: "https://na1-sandbox.api.commerce.adobe.com/EGD3J2kAQ3pgLrtoWaoCJR/graphql",
+    API_ENDPOINT: "https://na1-sandbox.api.commerce.adobe.com/EGD3J2kAQ3pgLrtoWaoCJR",
     COMMERCE_ADMIN_USERNAME: process.env.CYPRESS_COMMERCE_ADMIN_USERNAME,
     COMMERCE_ADMIN_PASSWORD: process.env.CYPRESS_COMMERCE_ADMIN_PASSWORD,
     giftCardA: "00GO12SK6WF3",
