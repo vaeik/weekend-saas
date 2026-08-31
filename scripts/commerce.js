@@ -908,22 +908,24 @@ export function decorateSections(main) {
 /**
  * Build the image resize params for the Commerce image resizer.
  *
- * `defaultImageProps.height` is frequently undefined. The dropin's
+ * `defaultImageProps` often carries no usable width/height. The dropin's
  * `tryRenderAemAssetsImage` copies `params.height` onto the image props
- * unconditionally, so an absent height is serialized as `height=NaN` — and the
- * resizer answers that with a blank 1x1, 268-byte JPEG. Every product then
- * renders as a flat colour block.
+ * unconditionally, so a missing height is serialized as `height=NaN` — and the
+ * resizer answers that with a blank 1x1, 268-byte JPEG, which is why every
+ * product rendered as a flat colour block.
  *
- * Passing `height=<width>` returns exactly the same image as width-only
- * (verified against the resizer), so fall back to the width rather than
- * omitting the value.
+ * Verified against the live resizer:
+ *   ?width=400            -> 38 KB, 400x400
+ *   ?width=400&height=400 -> 38 KB, 400x400  (identical)
+ *   ?width=400&height=NaN -> 268 B,  1x1     (blank)
+ *
+ * So always emit real numbers: fall back to `size` for the width, and to the
+ * width for the height.
  */
-export function imageSizeParams({ width, height } = {}) {
-  const w = Number(width);
-  const h = Number(height);
-  const params = {};
-  if (Number.isFinite(w)) params.width = width;
-  if (Number.isFinite(h)) params.height = height;
-  else if (Number.isFinite(w)) params.height = width;
-  return params;
+export function imageSizeParams(props = {}, size = 400) {
+  const w = Number(props?.width);
+  const h = Number(props?.height);
+  const width = Number.isFinite(w) && w > 0 ? w : size;
+  const height = Number.isFinite(h) && h > 0 ? h : width;
+  return { width, height };
 }
