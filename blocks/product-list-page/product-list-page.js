@@ -16,7 +16,7 @@ import { tryRenderAemAssetsImage } from '@dropins/tools/lib/aem/assets.js';
 import { events } from '@dropins/tools/event-bus.js';
 // AEM
 import { readBlockConfig } from '../../scripts/aem.js';
-import { fetchPlaceholders, getProductLink } from '../../scripts/commerce.js';
+import { fetchPlaceholders, getProductLink, imageSizeParams } from '../../scripts/commerce.js';
 import { getSearchStateFromUrl, applySearchStateToUrl } from './search-url.js';
 
 // Initializers
@@ -166,10 +166,7 @@ export default async function decorate(block) {
             alias: product.sku,
             imageProps: defaultImageProps,
             wrapper: anchorWrapper,
-            params: {
-              width: defaultImageProps.width,
-              height: defaultImageProps.height,
-            },
+            params: imageSizeParams(defaultImageProps),
           });
         },
         ProductActions: (ctx) => {

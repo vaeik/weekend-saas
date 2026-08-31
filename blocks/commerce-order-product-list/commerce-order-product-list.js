@@ -6,7 +6,7 @@ import { tryRenderAemAssetsImage } from '@dropins/tools/lib/aem/assets.js';
 
 // Initialize
 import '../../scripts/initializers/order.js';
-import { getProductLink, rootLink } from '../../scripts/commerce.js';
+import { getProductLink, rootLink, imageSizeParams } from '../../scripts/commerce.js';
 
 export default async function decorate(block) {
   const createProductLink = (productData) => {
@@ -31,10 +31,7 @@ export default async function decorate(block) {
           imageProps: defaultImageProps,
           wrapper: anchor,
 
-          params: {
-            width: defaultImageProps.width,
-            height: defaultImageProps.height,
-          },
+          params: imageSizeParams(defaultImageProps),
         });
       },
       Footer: (ctx) => {
@@ -53,10 +50,7 @@ export default async function decorate(block) {
                 imageProps: defaultImageProps,
                 wrapper: document.createElement('span'),
 
-                params: {
-                  width: defaultImageProps.width,
-                  height: defaultImageProps.height,
-                },
+                params: imageSizeParams(defaultImageProps),
               });
             },
           },

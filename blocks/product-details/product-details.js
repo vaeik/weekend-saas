@@ -31,6 +31,7 @@ import {
   setJsonLd,
   fetchPlaceholders,
   getProductLink,
+  imageSizeParams,
 } from '../../scripts/commerce.js';
 
 // Initializers
@@ -569,9 +570,6 @@ function imageSlotConfig(ctx) {
     alias: data.sku,
     imageProps: defaultImageProps,
 
-    params: {
-      width: defaultImageProps.width,
-      height: defaultImageProps.height,
-    },
+    params: imageSizeParams(defaultImageProps),
   };
 }

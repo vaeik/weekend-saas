@@ -21,7 +21,7 @@ import { render as wishlistRender } from '@dropins/storefront-wishlist/render.js
 // Block-level
 import { readBlockConfig } from '../../scripts/aem.js';
 import {
-  fetchPlaceholders, getProductLink, getStoreIdentifier,
+  fetchPlaceholders, getProductLink, getStoreIdentifier, imageSizeParams,
 } from '../../scripts/commerce.js';
 
 // Initializers
@@ -296,10 +296,7 @@ export default async function decorate(block) {
                 imageProps: defaultImageProps,
                 wrapper,
 
-                params: {
-                  width: defaultImageProps.width,
-                  height: defaultImageProps.height,
-                },
+                params: imageSizeParams(defaultImageProps),
               });
             },
           },

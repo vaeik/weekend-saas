@@ -11,6 +11,7 @@ import {
   checkIsAuthenticated,
   rootLink,
   getProductLink,
+  imageSizeParams,
 } from '../../scripts/commerce.js';
 
 // Initialize
@@ -33,10 +34,7 @@ export default async function decorate(block) {
             alias: data.product.sku,
             imageProps: defaultImageProps,
 
-            params: {
-              width: defaultImageProps.width,
-              height: defaultImageProps.height,
-            },
+            params: imageSizeParams(defaultImageProps),
           });
         },
       },

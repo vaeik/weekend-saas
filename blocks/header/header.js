@@ -4,7 +4,9 @@ import { events } from '@dropins/tools/event-bus.js';
 import { tryRenderAemAssetsImage } from '@dropins/tools/lib/aem/assets.js';
 import { getMetadata } from '../../scripts/aem.js';
 import { loadFragment } from '../fragment/fragment.js';
-import { fetchPlaceholders, getProductLink, rootLink } from '../../scripts/commerce.js';
+import {
+  fetchPlaceholders, getProductLink, rootLink, imageSizeParams,
+} from '../../scripts/commerce.js';
 import { applyMenuManagerNav } from './menu-source.js';
 
 import renderAuthCombine from './renderAuthCombine.js';
@@ -432,10 +434,7 @@ export default async function decorate(block) {
                 alias: product.sku,
                 imageProps: defaultImageProps,
                 wrapper: anchorWrapper,
-                params: {
-                  width: defaultImageProps.width,
-                  height: defaultImageProps.height,
-                },
+                params: imageSizeParams(defaultImageProps),
               });
             },
             Footer: async (ctx) => {

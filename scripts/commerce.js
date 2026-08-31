@@ -904,3 +904,18 @@ export function decorateSections(main) {
     section.style.display = 'none';
   });
 }
+
+/**
+ * Build the image resize params, dropping any that are not real numbers.
+ *
+ * `defaultImageProps.height` is frequently undefined, and passing it straight
+ * through produced `?width=400&height=NaN` — which the Commerce image resizer
+ * answers with a blank 268-byte JPEG, so every product looked like a flat
+ * colour block. Only send values the resizer can actually use.
+ */
+export function imageSizeParams({ width, height } = {}) {
+  const params = {};
+  if (Number.isFinite(Number(width))) params.width = width;
+  if (Number.isFinite(Number(height))) params.height = height;
+  return params;
+}

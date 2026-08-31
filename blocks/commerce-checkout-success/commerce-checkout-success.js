@@ -34,6 +34,7 @@ import {
   rootLink,
   SUPPORT_PATH,
   authPrivacyPolicyConsentSlot,
+  imageSizeParams,
 } from '../../scripts/commerce.js';
 
 // Ensure order drop-in initializer side effects are applied
@@ -109,10 +110,7 @@ function swatchImageSlot(ctx) {
     alias: imageSwatchContext.label,
     imageProps: defaultImageProps,
     wrapper: document.createElement('span'),
-    params: {
-      width: defaultImageProps.width,
-      height: defaultImageProps.height,
-    },
+    params: imageSizeParams(defaultImageProps),
   });
 }
 
@@ -186,10 +184,7 @@ async function renderOrderProductList(container) {
         tryRenderAemAssetsImage(ctx, {
           alias: data.product.sku,
           imageProps: defaultImageProps,
-          params: {
-            width: defaultImageProps.width,
-            height: defaultImageProps.height,
-          },
+          params: imageSizeParams(defaultImageProps),
         });
       },
     },

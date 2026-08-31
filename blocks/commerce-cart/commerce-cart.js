@@ -33,7 +33,9 @@ import '../../scripts/initializers/cart.js';
 import '../../scripts/initializers/wishlist.js';
 
 import { readBlockConfig } from '../../scripts/aem.js';
-import { fetchPlaceholders, rootLink, getProductLink } from '../../scripts/commerce.js';
+import {
+  fetchPlaceholders, rootLink, getProductLink, imageSizeParams,
+} from '../../scripts/commerce.js';
 
 export default async function decorate(block) {
   // Configuration
@@ -193,10 +195,7 @@ export default async function decorate(block) {
             imageProps: defaultImageProps,
             wrapper: anchorWrapper,
 
-            params: {
-              width: defaultImageProps.width,
-              height: defaultImageProps.height,
-            },
+            params: imageSizeParams(defaultImageProps),
           });
         },
 
@@ -337,9 +336,6 @@ function swatchImageSlot(ctx) {
     imageProps: defaultImageProps,
     wrapper: document.createElement('span'),
 
-    params: {
-      width: defaultImageProps.width,
-      height: defaultImageProps.height,
-    },
+    params: imageSizeParams(defaultImageProps),
   });
 }

@@ -67,6 +67,7 @@ import {
   authPrivacyPolicyConsentSlot,
   fetchPlaceholders,
   rootLink,
+  imageSizeParams,
 } from '../../scripts/commerce.js';
 
 // Constants
@@ -527,10 +528,7 @@ export const renderCartSummaryList = async (container) => renderContainer(
             alias: item.sku,
             imageProps: defaultImageProps,
 
-            params: {
-              width: defaultImageProps.width,
-              height: defaultImageProps.height,
-            },
+            params: imageSizeParams(defaultImageProps),
           });
         },
         Footer: renderCartGiftOptions,

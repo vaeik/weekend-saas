@@ -11,6 +11,7 @@ import {
   UPS_TRACKING_URL,
   rootLink,
   getProductLink,
+  imageSizeParams,
 } from '../../scripts/commerce.js';
 
 // Initialize
@@ -58,10 +59,7 @@ export default async function decorate(block) {
             imageProps: defaultImageProps,
             wrapper: anchor,
 
-            params: {
-              width: defaultImageProps.width,
-              height: defaultImageProps.height,
-            },
+            params: imageSizeParams(defaultImageProps),
           });
         },
       },

@@ -1,7 +1,7 @@
 /* eslint-disable import/no-unresolved */
 import { ProgressSpinner, provider as UI } from '@dropins/tools/components.js';
 import { tryRenderAemAssetsImage } from '@dropins/tools/lib/aem/assets.js';
-import { ORDER_DETAILS_PATH, rootLink } from '../../scripts/commerce.js';
+import { ORDER_DETAILS_PATH, rootLink, imageSizeParams } from '../../scripts/commerce.js';
 import { getUserTokenCookie } from '../../scripts/initializers/index.js';
 import createModal from '../modal/modal.js';
 
@@ -71,10 +71,7 @@ export function swatchImageSlot(ctx) {
     alias: imageSwatchContext.label,
     imageProps: defaultImageProps,
     wrapper: document.createElement('span'),
-    params: {
-      width: defaultImageProps.width,
-      height: defaultImageProps.height,
-    },
+    params: imageSizeParams(defaultImageProps),
   });
 }
 

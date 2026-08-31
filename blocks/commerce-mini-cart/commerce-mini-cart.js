@@ -17,7 +17,9 @@ import createMiniPDP from '../../scripts/components/commerce-mini-pdp/commerce-m
 import '../../scripts/initializers/cart.js';
 
 import { readBlockConfig } from '../../scripts/aem.js';
-import { fetchPlaceholders, rootLink, getProductLink } from '../../scripts/commerce.js';
+import {
+  fetchPlaceholders, rootLink, getProductLink, imageSizeParams,
+} from '../../scripts/commerce.js';
 
 export default async function decorate(block) {
   const {
@@ -179,10 +181,7 @@ export default async function decorate(block) {
           imageProps: defaultImageProps,
           wrapper: anchorWrapper,
 
-          params: {
-            width: defaultImageProps.width,
-            height: defaultImageProps.height,
-          },
+          params: imageSizeParams(defaultImageProps),
         });
 
         if (item?.itemType === 'ConfigurableCartItem' && enableUpdatingProduct === 'true') {

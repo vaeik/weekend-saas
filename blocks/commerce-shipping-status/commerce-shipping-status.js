@@ -4,6 +4,7 @@ import { tryRenderAemAssetsImage } from '@dropins/tools/lib/aem/assets.js';
 import {
   UPS_TRACKING_URL,
   getProductLink,
+  imageSizeParams,
 } from '../../scripts/commerce.js';
 
 // Initialize
@@ -46,9 +47,6 @@ function imageSlotConfig(ctx) {
     alias: data.product.sku,
     imageProps: defaultImageProps,
 
-    params: {
-      width: defaultImageProps.width,
-      height: defaultImageProps.height,
-    },
+    params: imageSizeParams(defaultImageProps),
   };
 }

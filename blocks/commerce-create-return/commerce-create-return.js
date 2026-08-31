@@ -6,6 +6,7 @@ import {
   CUSTOMER_ORDER_DETAILS_PATH,
   checkIsAuthenticated,
   rootLink,
+  imageSizeParams,
 } from '../../scripts/commerce.js';
 
 // Initialize
@@ -36,9 +37,6 @@ function imageSlotConfig(ctx) {
     alias: data.product.sku,
     imageProps: defaultImageProps,
 
-    params: {
-      width: defaultImageProps.width,
-      height: defaultImageProps.height,
-    },
+    params: imageSizeParams(defaultImageProps),
   };
 }
